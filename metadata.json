@@ -1,0 +1,6 @@
+{
+  "name": "Financial Reset Planner",
+  "description": "Minimalist luxury financial planner with budget wizards, category management, expense tracking, smart insights, savings goals, monthly closing workflows, and budget templates.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

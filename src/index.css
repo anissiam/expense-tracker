@@ -1,0 +1,175 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .font-serif-editorial {
+    font-family: 'Cairo', 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  }
+  .font-sans-editorial {
+    font-family: 'Cairo', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+  .rounded-arch {
+    border-top-left-radius: 120px;
+    border-top-right-radius: 120px;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+  }
+}
+
+/* Theme Design Tokens */
+:root, html[data-theme="emerald_light"] {
+  --color-bg-app: #F3EFEA;
+  --color-bg-surface: #FAF8F5;
+  --color-bg-secondary: #EAE5DC;
+  --color-bg-hover: #E2DDD3;
+  --color-border-main: #E3DDD3;
+  --color-border-sub: #DCD5C8;
+  --color-text-main: #1E2922;
+  --color-text-muted: #526054;
+  --color-text-sub: #78857A;
+  --color-accent-bg: #28372B;
+  --color-accent-hover: #1F2B21;
+  --color-accent-text: #FEF3C7;
+  --color-accent-subtext: #FDE68A;
+  --color-accent-border: #1F2B21;
+}
+
+html[data-theme="obsidian"] {
+  --color-bg-app: #090F0C;
+  --color-bg-surface: #111C16;
+  --color-bg-secondary: #192A20;
+  --color-bg-hover: #21382A;
+  --color-border-main: #233D2D;
+  --color-border-sub: #2E4E3A;
+  --color-text-main: #ECFDF5;
+  --color-text-muted: #A7F3D0;
+  --color-text-sub: #6EE7B7;
+  --color-accent-bg: #065F46;
+  --color-accent-hover: #047857;
+  --color-accent-text: #ECFDF5;
+  --color-accent-subtext: #A7F3D0;
+  --color-accent-border: #10B981;
+}
+
+html[data-theme="sapphire"] {
+  --color-bg-app: #060B18;
+  --color-bg-surface: #0E172A;
+  --color-bg-secondary: #1E293B;
+  --color-bg-hover: #334155;
+  --color-border-main: #1E3A8A;
+  --color-border-sub: #2563EB;
+  --color-text-main: #F8FAFC;
+  --color-text-muted: #93C5FD;
+  --color-text-sub: #60A5FA;
+  --color-accent-bg: #1E3A8A;
+  --color-accent-hover: #1D4ED8;
+  --color-accent-text: #EFF6FF;
+  --color-accent-subtext: #BFDBFE;
+  --color-accent-border: #3B82F6;
+}
+
+html[data-theme="amber"] {
+  --color-bg-app: #120E0C;
+  --color-bg-surface: #1C1714;
+  --color-bg-secondary: #2B231E;
+  --color-bg-hover: #3D322B;
+  --color-border-main: #4A3B32;
+  --color-border-sub: #614D41;
+  --color-text-main: #FFFBEB;
+  --color-text-muted: #FDE047;
+  --color-text-sub: #FACC15;
+  --color-accent-bg: #78350F;
+  --color-accent-hover: #92400E;
+  --color-accent-text: #FFFBEB;
+  --color-accent-subtext: #FDE68A;
+  --color-accent-border: #D97706;
+}
+
+body {
+  font-family: 'Cairo', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background-color: var(--color-bg-app) !important;
+  color: var(--color-text-main) !important;
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+/* Custom Financial Reset Editorial Theme Utility Overrides */
+.font-serif {
+  font-family: 'Cairo', 'Cormorant Garamond', Georgia, serif;
+}
+
+/* Scrollbar customization */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-sub);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent-bg);
+}
+
+/* Dynamic theme overrides for all components using hardcoded palette tokens */
+html[data-theme] .bg-\[\#F3EFEA\] { background-color: var(--color-bg-app) !important; }
+html[data-theme] .bg-\[\#FAF8F5\] { background-color: var(--color-bg-surface) !important; }
+html[data-theme] .bg-\[\#EAE5DC\] { background-color: var(--color-bg-secondary) !important; }
+html[data-theme] .bg-\[\#EAE5DC\]\/60 { background-color: var(--color-bg-secondary) !important; opacity: 0.9; }
+html[data-theme] .bg-\[\#E2DDD3\] { background-color: var(--color-bg-hover) !important; }
+html[data-theme] .bg-\[\#28372B\] { background-color: var(--color-accent-bg) !important; }
+html[data-theme] .bg-\[\#1E2B21\] { background-color: var(--color-accent-hover) !important; }
+html[data-theme] .hover\:bg-\[\#1F2B21\]:hover { background-color: var(--color-accent-hover) !important; }
+html[data-theme] .hover\:bg-\[\#E2DDD3\]:hover { background-color: var(--color-bg-hover) !important; }
+
+/* Text colors */
+html[data-theme] .text-\[\#1E2922\],
+html[data-theme] .text-\[\#1E2B21\],
+html[data-theme] .text-\[\#232B25\],
+html[data-theme] .text-\[\#354238\] { color: var(--color-text-main) !important; }
+
+html[data-theme] .text-\[\#627064\],
+html[data-theme] .text-\[\#626F64\],
+html[data-theme] .text-\[\#526054\],
+html[data-theme] .text-\[\#6D7A70\],
+html[data-theme] .text-\[\#4A554C\],
+html[data-theme] .text-\[\#556056\] { color: var(--color-text-muted) !important; }
+
+html[data-theme] .text-\[\#78857A\],
+html[data-theme] .text-\[\#7A867C\],
+html[data-theme] .text-\[\#8A968C\] { color: var(--color-text-sub) !important; }
+
+html[data-theme] .text-amber-100 { color: var(--color-accent-text) !important; }
+html[data-theme] .text-amber-200 { color: var(--color-accent-subtext) !important; }
+
+/* Borders */
+html[data-theme] .border-\[\#E3DDD3\] { border-color: var(--color-border-main) !important; }
+html[data-theme] .border-\[\#DCD5C8\],
+html[data-theme] .border-\[\#E8E2D7\],
+html[data-theme] .border-\[\#D0C7B8\],
+html[data-theme] .border-\[\#D8D2C5\] { border-color: var(--color-border-sub) !important; }
+html[data-theme] .border-\[\#1F2B21\] { border-color: var(--color-accent-border) !important; }
+
+/* Input, select & textarea text styling in dark modes */
+html[data-theme="obsidian"] input,
+html[data-theme="obsidian"] select,
+html[data-theme="obsidian"] textarea,
+html[data-theme="sapphire"] input,
+html[data-theme="sapphire"] select,
+html[data-theme="sapphire"] textarea,
+html[data-theme="amber"] input,
+html[data-theme="amber"] select,
+html[data-theme="amber"] textarea {
+  color: var(--color-text-main) !important;
+  background-color: var(--color-bg-secondary) !important;
+  border-color: var(--color-border-sub) !important;
+}
+
+html[data-theme="obsidian"] select option,
+html[data-theme="sapphire"] select option,
+html[data-theme="amber"] select option {
+  background-color: var(--color-bg-surface) !important;
+  color: var(--color-text-main) !important;
+}
+
