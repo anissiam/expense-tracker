@@ -45,7 +45,7 @@ export const MonthlyBudgetWizard: React.FC<MonthlyBudgetWizardProps> = ({
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (numericIncome <= 0) {
-      alert('Please enter a valid positive income amount.');
+      alert(t.invalidIncomeAlert);
       return;
     }
     updateBudgetCycle(numericIncome, mode, selectedCurrency);
@@ -167,7 +167,7 @@ export const MonthlyBudgetWizard: React.FC<MonthlyBudgetWizardProps> = ({
                 step="10"
                 value={incomeInput}
                 onChange={(e) => setIncomeInput(e.target.value)}
-                placeholder="e.g. 4000"
+                placeholder={t.incomeAmountPlaceholder}
                 className="w-full bg-[#EAE5DC] text-[#1E2922] border border-[#DCD5C8] rounded-2xl pl-10 rtl:pr-10 rtl:pl-4 pr-4 py-3 text-lg font-serif font-extrabold focus:outline-none focus:ring-2 focus:ring-[#28372B]"
               />
             </div>

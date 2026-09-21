@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { translations, Language } from '../locales';
 
 interface SpeechRecognitionResult {
   isListening: boolean;
@@ -35,7 +36,8 @@ declare global {
  * Phase 2: Web Speech API hook with graceful fallback.
  * Mic-less / headless environments can type directly into the transcript box.
  */
-export function useSpeechRecognition(): SpeechRecognitionResult {
+export function useSpeechRecognition(lang: Language = 'en'): SpeechRecognitionResult {
+  const tr = translations[lang] || translations.en;
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscriptState] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -57,18 +59,16 @@ export function useSpeechRecognition(): SpeechRecognitionResult {
   const startListening = useCallback(() => {
     setError(null);
     if (!isSupported) {
-      setError('Speech recognition is not supported in this browser (use Chrome or Edge). Type your expense instead — it uses the same parser.');
+      setError(tr.voiceSpeechNotSupported);
       return;
     }
     if (typeof navigator !== 'undefined' && navigator.onLine === false) {
-      setError('You appear to be offline. Voice needs internet (audio is transcribed in the cloud). Type your expense instead.');
+      setError(tr.voiceOffline);
       return;
     }
     if (typeof window !== 'undefined' && window.isSecureContext === false) {
       const origin = window.location?.origin || 'this page';
-      setError(
-        `Voice is blocked on insecure origin (${origin}). Open the app at http://localhost:3000 or http://127.0.0.1:3000 — plain HTTP on LAN IPs/hostnames is blocked by the browser — or type your expense instead.`
-      );
+      setError(tr.voiceInsecureOriginSpeech.replace('{origin}', origin));
       return;
     }
     try {
@@ -78,7 +78,7 @@ export function useSpeechRecognition(): SpeechRecognitionResult {
       const recognition = new Ctor();
       recognition.continuous = true;
       recognition.interimResults = true;
-      recognition.lang = 'en-US';
+      recognition.lang = lang === 'ar' ? 'ar-SA' : 'en-US';
 
       recognition.onresult = (event: any) => {
         let combined = '';
@@ -91,31 +91,27 @@ export function useSpeechRecognition(): SpeechRecognitionResult {
       recognition.onerror = (event: any) => {
         const kind = event?.error || 'unknown';
         if (kind === 'not-allowed' || kind === 'service-not-allowed') {
-          setError(
-            'Microphone access was denied. Allow the mic in the browser site settings, or just type your expense below — typed text uses the same parser.'
-          );
+          setError(tr.voiceMicDeniedSpeech);
         } else if (kind === 'no-speech') {
-          setError('No speech detected. Try again or type your expense.');
+          setError(tr.voiceNoSpeech);
         } else if (kind === 'audio-capture') {
-          setError('No microphone found. Connect/enable a mic, or type your expense instead.');
+          setError(tr.voiceNoMicSpeech);
         } else if (kind === 'network') {
           const hints: string[] = [];
           if (typeof navigator !== 'undefined' && navigator.onLine === false) {
-            hints.push('you appear to be offline');
+            hints.push(tr.voiceNetworkHintOffline);
           }
           if (typeof window !== 'undefined' && window.isSecureContext === false) {
-            hints.push('voice needs HTTPS or localhost (plain HTTP on a LAN IP is blocked)');
+            hints.push(tr.voiceNetworkHintHttps);
           }
           const detail = hints.length > 0 ? ` (${hints.join('; ')})` : '';
-          setError(
-            `Speech service unreachable (network)${detail}. Chrome/Edge stream mic audio to a cloud service, so VPNs, firewalls, or ad-blockers can block it. Tap the mic to retry, or type below — typed text tests the full flow.`
-          );
+          setError(tr.voiceNetworkUnreachable.replace('{detail}', detail));
         } else if (kind === 'aborted') {
-          setError('Recording was stopped. Tap the mic to try again, or type instead.');
+          setError(tr.voiceAborted);
         } else if (kind === 'language-not-supported') {
-          setError('This browser language is not supported for speech. Type your expense instead.');
+          setError(tr.voiceLangNotSupported);
         } else {
-          setError(`Speech error (${kind}). Tap the mic to retry, or type instead.`);
+          setError(tr.voiceGenericError.replace('{kind}', String(kind)));
         }
         setIsListening(false);
       };
@@ -127,10 +123,10 @@ export function useSpeechRecognition(): SpeechRecognitionResult {
       recognition.start();
       setIsListening(true);
     } catch {
-      setError('Could not start speech recognition. Type your expense instead.');
+      setError(tr.voiceCantStartSpeech);
       setIsListening(false);
     }
-  }, [isSupported]);
+  }, [isSupported, lang, tr]);
 
   const resetTranscript = useCallback(() => {
     setTranscriptState('');

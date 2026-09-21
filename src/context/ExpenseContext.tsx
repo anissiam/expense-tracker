@@ -25,7 +25,7 @@ import * as api from '../services/apiService';
 import { getToken, setToken } from '../services/apiService';
 import { supabase } from '../services/supabaseClient';
 
-import { Language, translations, TranslationDictionary } from '../data/translations';
+import { Language, translations, TranslationDictionary } from '../locales';
 
 interface ExpenseContextType {
   user: UserProfile;
@@ -558,7 +558,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
       setBudgetCycle(updated);
       if (curr) setCurrencyState(curr);
     } catch (err: any) {
-      alert(err?.message || 'Failed to save budget cycle');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
@@ -595,7 +595,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
         }).catch(() => {});
       }
     } catch (err: any) {
-      alert(err?.message || 'Failed to add category');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
@@ -604,7 +604,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
       await api.updateCategory(id, updates);
       setCategories((prev) => prev.map((cat) => (cat.id === id ? { ...cat, ...updates } : cat)));
     } catch (err: any) {
-      alert(err?.message || 'Failed to update category');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
@@ -620,7 +620,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
         setExpenses((prev) => prev.filter((e) => e.categoryId !== id));
       }
     } catch (err: any) {
-      alert(err?.message || 'Failed to delete category');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
@@ -630,7 +630,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
       try {
         await api.deleteCategory(id);
       } catch (err: any) {
-        alert(err?.message || 'Failed to archive category');
+        alert(err?.message || t.operationFailedFallback);
         return;
       }
     }
@@ -668,7 +668,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
         })
       );
     } catch (err: any) {
-      alert(err?.message || 'Failed to add subcategory');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
@@ -696,7 +696,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
         })
       );
     } catch (err: any) {
-      alert(err?.message || 'Failed to update subcategory');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
@@ -713,7 +713,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
         })
       );
     } catch (err: any) {
-      alert(err?.message || 'Failed to delete subcategory');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
@@ -729,7 +729,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
       const allocMap = await api.fetchAllocations(budgetCycle.id);
       setCategories((prev) => computeSpent(overlayAllocations(prev, allocMap), expenses, activeMonth));
     } catch (err: any) {
-      alert(err?.message || 'Failed to allocate budget');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
@@ -751,7 +751,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
       }));
       setExpenses((prev) => [...withSub, ...prev]);
     } catch (err: any) {
-      alert(err?.message || 'Failed to add expense');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
@@ -760,7 +760,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
       const updated = await api.updateExpense(id, expenseData);
       setExpenses((prev) => prev.map((e) => (id === e.id ? { ...updated, subcategoryId: expenseData.subcategoryId ?? e.subcategoryId, categoryId: expenseData.categoryId ?? updated.categoryId } : e)));
     } catch (err: any) {
-      alert(err?.message || 'Failed to update expense');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
@@ -769,7 +769,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
       await api.deleteExpense(id);
       setExpenses((prev) => prev.filter((e) => e.id !== id));
     } catch (err: any) {
-      alert(err?.message || 'Failed to delete expense');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
@@ -781,7 +781,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
     try {
       const baseIncome = customIncome || budgetCycle.totalIncome || 0;
       if (baseIncome <= 0) {
-        alert('Set your monthly income first, then apply a template.');
+        alert(t.applyTemplateIncomeFirst);
         return;
       }
       // Ensure a budget exists for the active month
@@ -825,7 +825,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
       }
       await reloadCategories(targetBudgetId, activeMonth, expenses);
     } catch (err: any) {
-      alert(err?.message || 'Failed to apply template');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
@@ -847,7 +847,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
       const created = await api.createTemplate({ name, description, config });
       setTemplates((prev) => [...prev, created]);
     } catch (err: any) {
-      alert(err?.message || 'Failed to save template');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
@@ -882,13 +882,13 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
       const goals = await api.fetchSavingsGoals();
       await refreshSavings(goals);
     } catch (err: any) {
-      alert(err?.message || 'Failed to deposit to savings');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
   const withdrawFromSavings = async (amount: number, note: string) => {
     if (amount > savingsBalance) {
-      alert('Withdrawal amount exceeds available savings balance.');
+      alert(t.withdrawalExceedsBalance);
       return;
     }
     try {
@@ -897,7 +897,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
       const goals = await api.fetchSavingsGoals();
       await refreshSavings(goals);
     } catch (err: any) {
-      alert(err?.message || 'Failed to withdraw from savings');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
@@ -906,7 +906,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
       const created = await api.createSavingsGoal(goal);
       setSavingsGoals((prev) => [...prev, created]);
     } catch (err: any) {
-      alert(err?.message || 'Failed to add savings goal');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
@@ -938,7 +938,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
         });
       }
     } catch (err: any) {
-      alert(err?.message || 'Failed to update savings goal');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
@@ -947,7 +947,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
       await api.deleteSavingsGoal(id);
       setSavingsGoals((prev) => prev.filter((g) => g.id !== id));
     } catch (err: any) {
-      alert(err?.message || 'Failed to delete savings goal');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
@@ -1023,7 +1023,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
       } catch { /* ignore */ }
       void totalAllocated;
     } catch (err: any) {
-      alert(err?.message || 'Failed to close the month');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
@@ -1069,7 +1069,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
       const created = await api.createAccount(account);
       setAccounts((prev) => [created, ...prev]);
     } catch (err: any) {
-      alert(err?.message || 'Failed to add account');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
@@ -1078,7 +1078,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
       const updated = await api.updateAccount(id, updates);
       setAccounts((prev) => prev.map((acc) => (acc.id === id ? updated : acc)));
     } catch (err: any) {
-      alert(err?.message || 'Failed to update account');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
@@ -1087,7 +1087,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
       await api.deleteAccount(id);
       setAccounts((prev) => prev.filter((acc) => acc.id !== id));
     } catch (err: any) {
-      alert(err?.message || 'Failed to delete account');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
@@ -1098,7 +1098,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
       const created = await api.createIncoming(incoming);
       setIncomings((prev) => [created, ...prev]);
     } catch (err: any) {
-      alert(err?.message || 'Failed to add incoming');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
@@ -1107,7 +1107,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
       const updated = await api.updateIncoming(id, updates);
       setIncomings((prev) => prev.map((inc) => (inc.id === id ? updated : inc)));
     } catch (err: any) {
-      alert(err?.message || 'Failed to update incoming');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
@@ -1116,7 +1116,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
       await api.deleteIncoming(id);
       setIncomings((prev) => prev.filter((inc) => inc.id !== id));
     } catch (err: any) {
-      alert(err?.message || 'Failed to delete incoming');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 
@@ -1149,7 +1149,7 @@ export const ExpenseProvider: React.FC<{ children: ReactNode }> = ({ children })
         setBudgetCycle((prev) => ({ ...prev, totalIncome: prev.totalIncome + inc.amount }));
       }
     } catch (err: any) {
-      alert(err?.message || 'Failed to mark incoming as received');
+      alert(err?.message || t.operationFailedFallback);
     }
   };
 

@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { translations, Language } from '../locales';
 
 interface AudioRecorderResult {
   isRecording: boolean;
@@ -17,7 +18,8 @@ const MAX_SECONDS = 120;
  * Audio never goes to the browser's cloud speech service — the blob is
  * uploaded to our own /api/ai/transcribe endpoint instead.
  */
-export function useAudioRecorder(): AudioRecorderResult {
+export function useAudioRecorder(lang: Language = 'en'): AudioRecorderResult {
+  const tr = translations[lang] || translations.en;
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -50,14 +52,12 @@ export function useAudioRecorder(): AudioRecorderResult {
   const startRecording = useCallback(async () => {
     setError(null);
     if (!isSupported) {
-      setError('Audio recording is not supported in this browser. Type your expense instead.');
+      setError(tr.voiceAudioNotSupported);
       return;
     }
     if (typeof window !== 'undefined' && window.isSecureContext === false) {
       const origin = window.location?.origin || 'this page';
-      setError(
-        `Recording is blocked on insecure origin (${origin}). Open the app at http://localhost:3000 or http://127.0.0.1:3000, or type instead.`
-      );
+      setError(tr.voiceInsecureOriginAudio.replace('{origin}', origin));
       return;
     }
     if (recorderRef.current) return; // already recording
@@ -86,7 +86,7 @@ export function useAudioRecorder(): AudioRecorderResult {
         stopResolveRef.current = null;
       };
       recorder.onerror = () => {
-        setError('Recording failed. Check the mic and try again, or type instead.');
+        setError(tr.voiceRecordingFailed);
         teardown();
         setIsRecording(false);
         stopResolveRef.current?.(null);
@@ -113,16 +113,16 @@ export function useAudioRecorder(): AudioRecorderResult {
     } catch (err: any) {
       const name = err?.name || '';
       if (name === 'NotAllowedError' || name === 'SecurityError') {
-        setError('Microphone access was denied. Allow the mic in site settings, or type instead.');
+        setError(tr.voiceMicDeniedAudio);
       } else if (name === 'NotFoundError' || name === 'OverconstrainedError') {
-        setError('No microphone found. Connect one, or type your expense instead.');
+        setError(tr.voiceNoMicAudio);
       } else {
-        setError('Could not start recording. Check the mic, or type instead.');
+        setError(tr.voiceCantStartRecording);
       }
       teardown();
       setIsRecording(false);
     }
-  }, [isSupported, teardown]);
+  }, [isSupported, teardown, tr]);
 
   const stopRecording = useCallback((): Promise<Blob | null> => {
     return new Promise((resolve) => {
@@ -172,7 +172,7 @@ export function blobToBase64(blob: Blob): Promise<string> {
       const comma = result.indexOf(',');
       resolve(comma >= 0 ? result.slice(comma + 1) : result);
     };
-    reader.onerror = () => reject(new Error('Could not read recording.'));
+    reader.onerror = () => reject(new Error(translations.en.voiceReadRecordingFailed));
     reader.readAsDataURL(blob);
   });
 }

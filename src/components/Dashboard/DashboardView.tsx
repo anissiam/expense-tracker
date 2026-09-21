@@ -91,17 +91,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="md:col-span-7 bg-[#FAF8F5] border border-[#E3DDD3] rounded-3xl p-6 sm:p-8 flex flex-col justify-between shadow-sm relative overflow-hidden">
           <div>
             <div className="flex items-center gap-2 text-[10px] font-mono tracking-widest text-[#738275] uppercase font-bold mb-2">
-              <span>MINIMAL</span>
+              <span>{t.heroEyebrow}</span>
               <Sparkles className="w-3.5 h-3.5 text-amber-600" />
             </div>
 
             <h1 className="font-serif text-4xl sm:text-5xl font-extrabold text-[#1E2922] leading-tight tracking-tight">
-              Financial <br />
-              <span className="italic font-normal">Reset</span> PLANNER
+              {t.heroTitleFinancial} <br />
+              <span className="italic font-normal">{t.heroTitleReset}</span> {t.heroTitlePlanner}
             </h1>
 
             <p className="text-xs text-[#526054] mt-3 max-w-xs font-sans leading-relaxed">
-              Reset your money. Design your freedom.
+              {t.heroTagline}
             </p>
           </div>
 
@@ -137,8 +137,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <path d="M8 18C5 18 3 16 3 13C3 10 5 8 8 8M16 18C19 18 21 16 21 13C21 10 19 8 16 8" />
                 </svg>
               </div>
-              <div className="font-serif text-xs font-bold text-[#28372B]">ORGANIZED FREEDOM</div>
-              <div className="text-[9px] font-mono text-[#6A786C] mt-0.5">Mindful Balance</div>
+              <div className="font-serif text-xs font-bold text-[#28372B]">{t.artCardTitle}</div>
+              <div className="text-[9px] font-mono text-[#6A786C] mt-0.5">{t.artCardSubtitle}</div>
             </div>
 
             <div className="absolute inset-0 bg-gradient-to-t from-[#28372B]/5 to-transparent pointer-events-none" />
@@ -156,10 +156,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div>
             <div className="flex items-center justify-between text-xs text-amber-200/80 font-mono tracking-widest uppercase font-bold">
               <span className="flex items-center gap-1.5">
-                <span>NET WORTH</span>
+                <span>{t.netWorthLabel}</span>
                 <Eye className="w-3.5 h-3.5 text-amber-300" />
               </span>
-              <span className="text-emerald-300 text-[10px]">REAL-TIME SYNC</span>
+              <span className="text-emerald-300 text-[10px]">{t.realTimeSyncBadge}</span>
             </div>
 
             <div className="font-serif text-3xl sm:text-4xl font-extrabold text-amber-100 mt-2">
@@ -167,7 +167,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             <div className="text-xs text-emerald-300 font-mono font-bold mt-1 flex items-center gap-1">
-              <span>This month · live from your budget</span>
+              <span>{t.netWorthLiveNote}</span>
             </div>
           </div>
 
@@ -183,7 +183,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 </defs>
                 <Tooltip
                   contentStyle={{ backgroundColor: '#1F2B21', borderColor: '#35473A', borderRadius: '12px', color: '#FCD34D' }}
-                  formatter={(val: any) => [formatCurrency(Number(val), currency), 'Net Worth']}
+                  formatter={(val: any) => [formatCurrency(Number(val), currency), t.netWorthTooltipLabel]}
                 />
                 <Area
                   type="monotone"
@@ -219,8 +219,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Financial Snapshot (4 Pill Cards) */}
         <div className="md:col-span-6 bg-[#FAF8F5] border border-[#E3DDD3] rounded-3xl p-5 shadow-sm space-y-3">
           <div className="flex items-center justify-between text-xs font-mono font-bold text-[#647266] uppercase tracking-wider">
-            <span>FINANCIAL SNAPSHOT</span>
-            <span className="text-[10px] text-[#28372B] font-serif font-bold">This Month v</span>
+            <span>{t.financialSnapshotTitle}</span>
+            <span className="text-[10px] text-[#28372B] font-serif font-bold">{t.snapshotPeriodLabel} v</span>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -232,7 +232,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="font-serif text-xl font-extrabold text-[#1E2922] mt-1">
                   {formatCurrency(totalIncome, currency)}
                 </div>
-                <div className="text-[10px] font-mono font-bold text-emerald-700 mt-1">This month</div>
+                <div className="text-[10px] font-mono font-bold text-emerald-700 mt-1">{t.thisMonthLabel}</div>
               </div>
               <div className="w-8 h-8 rounded-full bg-[#E3DDD3] text-[#28372B] flex items-center justify-center shrink-0">
                 <Wallet className="w-4 h-4" />
@@ -246,7 +246,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="font-serif text-xl font-extrabold text-[#1E2922] mt-1">
                   {formatCurrency(totalSpent, currency)}
                 </div>
-                <div className="text-[10px] font-mono font-bold text-rose-700 mt-1">This month</div>
+                <div className="text-[10px] font-mono font-bold text-rose-700 mt-1">{t.thisMonthLabel}</div>
               </div>
               <div className="w-8 h-8 rounded-full bg-[#EAE2D8] text-[#8C5D4B] flex items-center justify-center shrink-0">
                 <TrendingDown className="w-4 h-4" />
@@ -260,7 +260,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="font-serif text-xl font-extrabold text-[#1E2922] mt-1">
                   {formatCurrency(savingsBalance, currency)}
                 </div>
-                <div className="text-[10px] font-mono font-bold text-emerald-700 mt-1">Total saved</div>
+                <div className="text-[10px] font-mono font-bold text-emerald-700 mt-1">{t.totalSavedLabel}</div>
               </div>
               <div className="w-8 h-8 rounded-full bg-[#E3DDD3] text-[#28372B] flex items-center justify-center shrink-0">
                 <PiggyBank className="w-4 h-4" />
@@ -274,7 +274,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="font-serif text-xl font-extrabold text-[#1E2922] mt-1">
                   {formatCurrency(totalIncome - totalSpent, currency)}
                 </div>
-                <div className="text-[10px] font-mono font-bold text-emerald-700 mt-1">Income minus spent</div>
+                <div className="text-[10px] font-mono font-bold text-emerald-700 mt-1">{t.incomeMinusSpentLabel}</div>
               </div>
               <div className="w-8 h-8 rounded-full bg-[#EAE2D8] text-[#8C5D4B] flex items-center justify-center shrink-0">
                 <TrendingUp className="w-4 h-4" />
@@ -291,8 +291,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       {myBudgetRole === 'viewer' && (
         <div className="bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl px-4 py-3 text-xs">
-          <span className="font-bold">View-only access.</span> You were invited as a viewer — you can see this
-          shared budget but cannot add or edit expenses.
+          <span className="font-bold">{t.viewerBannerTitle}</span> {t.viewerBannerBody}
         </div>
       )}
 
@@ -306,19 +305,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="md:col-span-4 bg-[#28372B] text-amber-100 rounded-3xl p-6 border border-[#1F2B21] flex flex-col justify-between shadow-md">
           <Sparkles className="w-6 h-6 text-amber-300" />
           <div className="font-serif text-lg leading-snug font-medium my-4 text-amber-100 tracking-wide uppercase">
-            A NEW FINANCIAL CHAPTER STARTS WITH A SINGLE DECISION.
+            {t.quoteTileMain}
           </div>
           <div className="text-[10px] font-mono font-bold text-amber-200/80 tracking-widest">
-            YOU'VE GOT THIS.
+            {t.quoteTileSub}
           </div>
         </div>
 
         {/* Top Priorities Goals List */}
         <div className="md:col-span-4 bg-[#FAF8F5] border border-[#E3DDD3] rounded-3xl p-5 shadow-sm space-y-3 flex flex-col justify-between">
           <div className="flex items-center justify-between text-xs font-mono font-bold text-[#627064] uppercase">
-            <span>TOP PRIORITIES</span>
+            <span>{t.topPrioritiesTitle}</span>
             <button onClick={onNavigateToCategories} className="text-[#28372B] hover:underline text-[11px]">
-              Edit
+              {t.editPrioritiesBtn}
             </button>
           </div>
 
@@ -347,12 +346,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         {/* Mini Calendar Widget */}
         <div className="md:col-span-4 bg-[#FAF8F5] border border-[#E3DDD3] rounded-3xl p-5 shadow-sm space-y-3 flex flex-col justify-between">
           <div className="flex items-center justify-between text-xs font-mono font-bold text-[#627064] uppercase">
-            <span>MONTHLY CALENDAR</span>
+            <span>{t.monthlyCalendarTitle}</span>
             <span className="text-[#28372B] font-serif font-bold">{activeMonth} v</span>
           </div>
 
           <div className="grid grid-cols-7 gap-1 text-center font-mono text-[10px] text-[#78857A]">
-            <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+            {t.calendarWeekdays.split('').map((d, i) => (
+              <div key={i}>{d}</div>
+            ))}
             {calendarDays.slice(0, 28).map((d) => {
               const isToday = d === currentDay;
               return (
@@ -376,7 +377,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* Bottom Quick Actions Bar */}
       <div className="bg-[#FAF8F5] border border-[#E3DDD3] rounded-3xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
         <span className="text-xs font-mono font-bold text-[#627064] uppercase tracking-wider pl-2">
-          QUICK ACTIONS
+          {t.quickActionsTitle}
         </span>
 
         <div className="flex flex-wrap items-center gap-2">

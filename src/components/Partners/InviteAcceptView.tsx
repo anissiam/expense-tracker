@@ -16,7 +16,7 @@ function tokenFromPath(): string | null {
  * - After auth, the invite is accepted automatically.
  */
 export const InviteAcceptView: React.FC<{ token?: string }> = ({ token: propToken }) => {
-  const { isAuthenticated, login, register, acceptInviteToken, declineInviteToken } = useExpense();
+  const { isAuthenticated, login, register, acceptInviteToken, declineInviteToken, t } = useExpense();
   const [token] = useState(() => propToken || tokenFromPath() || new URLSearchParams(window.location.search).get('invite'));
   const [preview, setPreview] = useState<InvitePreview | null>(null);
   const [loading, setLoading] = useState(true);
@@ -31,7 +31,7 @@ export const InviteAcceptView: React.FC<{ token?: string }> = ({ token: propToke
 
   useEffect(() => {
     if (!token) {
-      setError('Invalid invitation link.');
+      setError(t.inviteInvalidLink);
       setLoading(false);
       return;
     }
@@ -40,9 +40,9 @@ export const InviteAcceptView: React.FC<{ token?: string }> = ({ token: propToke
         setPreview(p);
         setMode(p.isNewUser ? 'register' : 'login');
         setEmail(p.email || '');
-        if (p.status !== 'pending') setDone(`This invitation is already ${p.status}.`);
+        if (p.status !== 'pending') setDone(t.inviteAlreadyStatus.replace('{status}', p.status));
       })
-      .catch((e: any) => setError(e?.message || 'Invitation not found or expired.'))
+      .catch(() => setError(t.inviteNotFound))
       .finally(() => setLoading(false));
   }, [token]);
 
@@ -55,9 +55,9 @@ export const InviteAcceptView: React.FC<{ token?: string }> = ({ token: propToke
     setError(null);
     try {
       await acceptInviteToken(token);
-      setDone('Invitation accepted! Your shared budget is now available.');
+      setDone(t.inviteAcceptedReady);
     } catch (e: any) {
-      setError(e?.message || 'Failed to accept invitation.');
+      setError(e?.message || t.inviteAcceptFailed);
     }
   };
 
@@ -75,10 +75,10 @@ export const InviteAcceptView: React.FC<{ token?: string }> = ({ token: propToke
         // New user: register auto-accepts via invite_token on the backend.
         await register(name.trim(), email.trim(), password, token);
       }
-      setDone('Welcome! Invitation accepted — loading your shared budget…');
+      setDone(t.inviteWelcomeAccepted);
       setTimeout(goHome, 1200);
     } catch (err: any) {
-      setError(err?.message || 'Authentication failed.');
+      setError(err?.message || t.authFailedGeneric);
     } finally {
       setSubmitting(false);
     }
@@ -87,7 +87,7 @@ export const InviteAcceptView: React.FC<{ token?: string }> = ({ token: propToke
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F3EFEA] flex items-center justify-center">
-        <p className="text-xs font-mono text-[#627064] uppercase tracking-widest">Loading invitation…</p>
+        <p className="text-xs font-mono text-[#627064] uppercase tracking-widest">{t.inviteLoading}</p>
       </div>
     );
   }
@@ -97,10 +97,10 @@ export const InviteAcceptView: React.FC<{ token?: string }> = ({ token: propToke
       <div className="w-full max-w-md space-y-4">
         <div className="bg-[#28372B] p-8 rounded-3xl border border-[#1F2B21] text-amber-100 shadow-xl text-center space-y-2">
           <Users className="w-8 h-8 mx-auto text-amber-200" />
-          <h1 className="font-serif text-2xl font-extrabold">Budget invitation</h1>
+          <h1 className="font-serif text-2xl font-extrabold">{t.inviteTitle}</h1>
           {preview && (
             <p className="text-xs font-mono text-amber-200/70 uppercase tracking-widest">
-              {preview.budgetName || 'Shared budget'} · {preview.role} · from {preview.inviterName || 'owner'}
+              {preview.budgetName || t.partnersSharedBudgetFallback} · {preview.role === 'editor' ? t.partnersRoleEditor : t.partnersRoleViewer} · {t.partnersFromWord} {preview.inviterName || t.partnersOwnerFallback}
             </p>
           )}
         </div>
@@ -110,36 +110,37 @@ export const InviteAcceptView: React.FC<{ token?: string }> = ({ token: propToke
             <>
               <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-900 text-xs">{done}</div>
               <button onClick={goHome} className="w-full px-6 py-3 rounded-2xl bg-[#28372B] text-amber-100 font-bold text-sm">
-                Go to dashboard
+                {t.inviteGoDashboard}
               </button>
             </>
           ) : !isAuthenticated && !getToken() ? (
             <form onSubmit={handleAuth} className="space-y-3">
               <div className="grid grid-cols-2 gap-2 p-1 rounded-2xl bg-[#EAE5DC] border border-[#DCD5C8]">
-                <button type="button" onClick={() => setMode('login')} className={`py-2 rounded-xl text-xs font-bold ${mode === 'login' ? 'bg-[#28372B] text-amber-100' : 'text-[#627064]'}`}>Sign In</button>
-                <button type="button" onClick={() => setMode('register')} className={`py-2 rounded-xl text-xs font-bold ${mode === 'register' ? 'bg-[#28372B] text-amber-100' : 'text-[#627064]'}`}>Sign Up</button>
+                <button type="button" onClick={() => setMode('login')} className={`py-2 rounded-xl text-xs font-bold ${mode === 'login' ? 'bg-[#28372B] text-amber-100' : 'text-[#627064]'}`}>{t.authSignIn}</button>
+                <button type="button" onClick={() => setMode('register')} className={`py-2 rounded-xl text-xs font-bold ${mode === 'register' ? 'bg-[#28372B] text-amber-100' : 'text-[#627064]'}`}>{t.authSignUp}</button>
               </div>
               <p className="text-xs text-[#627064]">
                 {preview?.isNewUser
-                  ? 'No account found for this email — create one to join the shared budget.'
-                  : 'Sign in with the invited email address to accept.'}
+                  ? t.inviteNoAccountHint
+                  : t.inviteSignInHint}
               </p>
               {mode === 'register' && (
-                <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" className="w-full bg-[#EAE5DC] border border-[#DCD5C8] rounded-2xl px-4 py-2.5 text-sm" />
+                <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder={t.authNamePlaceholder} className="w-full bg-[#EAE5DC] border border-[#DCD5C8] rounded-2xl px-4 py-2.5 text-sm" />
               )}
-              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="w-full bg-[#EAE5DC] border border-[#DCD5C8] rounded-2xl px-4 py-2.5 text-sm" />
-              <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" minLength={mode === 'register' ? 8 : undefined} className="w-full bg-[#EAE5DC] border border-[#DCD5C8] rounded-2xl px-4 py-2.5 text-sm" />
+              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t.authEmailPlaceholder} className="w-full bg-[#EAE5DC] border border-[#DCD5C8] rounded-2xl px-4 py-2.5 text-sm" />
+              <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t.authPasswordPlaceholderShort} minLength={mode === 'register' ? 8 : undefined} className="w-full bg-[#EAE5DC] border border-[#DCD5C8] rounded-2xl px-4 py-2.5 text-sm" />
               {error && <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-800 text-xs">{error}</div>}
               <button type="submit" disabled={submitting} className="w-full px-6 py-3 rounded-2xl bg-[#28372B] disabled:opacity-60 text-amber-100 font-bold text-sm flex items-center justify-center gap-2">
                 {mode === 'login' ? <LogIn className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
-                {submitting ? 'Please wait…' : mode === 'login' ? 'Sign in & accept' : 'Create account & join'}
+                {submitting ? t.commonPleaseWait : mode === 'login' ? t.inviteSignInAccept : t.inviteCreateJoin}
               </button>
             </form>
           ) : (
             <>
               <p className="text-xs text-[#627064]">
-                Signed in. Accept this invitation to get <span className="font-bold">{preview?.role}</span> access to{' '}
-                <span className="font-bold">{preview?.budgetName}</span>?
+                {t.inviteConfirmPrompt
+                  .replace('{role}', preview?.role === 'editor' ? t.partnersRoleEditor : t.partnersRoleViewer)
+                  .replace('{budget}', preview?.budgetName || t.partnersSharedBudgetFallback)}
               </p>
               {error && <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-800 text-xs">{error}</div>}
               <div className="flex gap-2">
@@ -147,17 +148,17 @@ export const InviteAcceptView: React.FC<{ token?: string }> = ({ token: propToke
                   onClick={handleAccept}
                   className="flex-1 px-6 py-3 rounded-2xl bg-[#28372B] text-amber-100 font-bold text-sm"
                 >
-                  Accept invitation
+                  {t.inviteAcceptBtn}
                 </button>
                 <button
-                  onClick={() => token && declineInviteToken(token).then(() => setDone('Invitation declined.')).catch((e: any) => setError(e?.message))}
+                  onClick={() => token && declineInviteToken(token).then(() => setDone(t.inviteDeclinedDone)).catch((e: any) => setError(e?.message))}
                   className="px-6 py-3 rounded-2xl bg-[#EAE5DC] border border-[#DCD5C8] font-bold text-xs text-[#627064]"
                 >
-                  Decline
+                  {t.partnersDecline}
                 </button>
               </div>
               <button onClick={goHome} className="w-full text-center text-[11px] text-[#627064] hover:underline">
-                Back to dashboard
+                {t.inviteBackDashboard}
               </button>
             </>
           )}

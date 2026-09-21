@@ -1,6 +1,7 @@
 import React from 'react';
 import { useExpense } from '../../context/ExpenseContext';
 import { formatCurrency } from '../../data/currencies';
+import { translateDataName } from '../../data/categoryTranslations';
 import { DynamicIcon } from '../Common/DynamicIcon';
 import { AlertTriangle } from 'lucide-react';
 
@@ -10,7 +11,7 @@ import { AlertTriangle } from 'lucide-react';
  * Overspending is allowed but always flagged (negative remaining).
  */
 export const BudgetOverview: React.FC = () => {
-  const { categories, expenses, activeMonth, budgetCycle, currency } = useExpense();
+  const { categories, expenses, activeMonth, budgetCycle, currency, t, language } = useExpense();
 
   const monthExpenses = expenses.filter((e) => e.date.startsWith(activeMonth));
   const totalAllocated = categories.reduce((sum, c) => sum + c.allocated, 0);
@@ -27,25 +28,25 @@ export const BudgetOverview: React.FC = () => {
       {/* Key metric cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="bg-[#FAF8F5] border border-[#E3DDD3] rounded-2xl p-4 shadow-sm">
-          <div className="text-[10px] font-mono font-bold text-[#728074] uppercase">Total Budget</div>
+          <div className="text-[10px] font-mono font-bold text-[#728074] uppercase">{t.totalBudgetLabel}</div>
           <div className="font-serif text-2xl font-extrabold text-[#1E2922] mt-1">
             {formatCurrency(totalBudget, currency)}
           </div>
-          <div className="text-[10px] font-mono text-[#78857A] mt-1">Cycle {activeMonth}</div>
+          <div className="text-[10px] font-mono text-[#78857A] mt-1">{t.cycle} {activeMonth}</div>
         </div>
         <div className="bg-[#FAF8F5] border border-[#E3DDD3] rounded-2xl p-4 shadow-sm">
-          <div className="text-[10px] font-mono font-bold text-[#728074] uppercase">Total Spent</div>
+          <div className="text-[10px] font-mono font-bold text-[#728074] uppercase">{t.totalSpentLabel}</div>
           <div className="font-serif text-2xl font-extrabold text-[#1E2922] mt-1">
             {formatCurrency(totalSpent, currency)}
           </div>
-          <div className="text-[10px] font-mono text-[#78857A] mt-1">{monthExpenses.length} expenses</div>
+          <div className="text-[10px] font-mono text-[#78857A] mt-1">{monthExpenses.length} {t.expensesUnit}</div>
         </div>
         <div
           className={`rounded-2xl p-4 shadow-sm border ${
             isOverspent ? 'bg-rose-50 border-rose-300' : 'bg-[#FAF8F5] border-[#E3DDD3]'
           }`}
         >
-          <div className="text-[10px] font-mono font-bold uppercase text-[#728074]">Remaining Budget</div>
+          <div className="text-[10px] font-mono font-bold uppercase text-[#728074]">{t.remainingBudgetLabel}</div>
           <div
             className={`font-serif text-2xl font-extrabold mt-1 ${
               isOverspent ? 'text-rose-700' : 'text-[#1E2922]'
@@ -55,8 +56,8 @@ export const BudgetOverview: React.FC = () => {
           </div>
           <div className={`text-[10px] font-mono font-bold mt-1 ${isOverspent ? 'text-rose-700' : 'text-emerald-700'}`}>
             {isOverspent
-              ? `Over budget by ${formatCurrency(Math.abs(remaining), currency)}`
-              : 'On track'}
+              ? t.overBudgetBy.replace('{amount}', formatCurrency(Math.abs(remaining), currency))
+              : t.onTrackLabel}
           </div>
         </div>
       </div>
@@ -65,8 +66,8 @@ export const BudgetOverview: React.FC = () => {
         <div className="flex items-start gap-2 bg-rose-50 border border-rose-300 text-rose-900 rounded-2xl px-4 py-3 text-xs">
           <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>
-            <span className="font-bold">Monthly budget exceeded.</span> New expenses are still saved, but
-            spending is now over plan by {formatCurrency(Math.abs(remaining), currency)}.
+            <span className="font-bold">{t.budgetExceededTitle}</span>{' '}
+            {t.budgetExceededBody.replace('{amount}', formatCurrency(Math.abs(remaining), currency))}
           </span>
         </div>
       )}
@@ -74,11 +75,11 @@ export const BudgetOverview: React.FC = () => {
       {/* Category meters */}
       <div className="bg-[#FAF8F5] border border-[#E3DDD3] rounded-3xl p-5 shadow-sm space-y-4">
         <div className="text-xs font-mono font-bold text-[#627064] uppercase tracking-wider">
-          Category budgets · automatic deduction
+          {t.categoryBudgetsTitle}
         </div>
         {categories.length === 0 && (
           <p className="text-xs font-mono italic text-[#78857A]">
-            No categories yet — create one to start tracking deductions.
+            {t.noCategoriesEmptyState}
           </p>
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -93,15 +94,15 @@ export const BudgetOverview: React.FC = () => {
                     <div className="p-1.5 rounded-xl bg-[#28372B] text-amber-200 shrink-0">
                       <DynamicIcon name={cat.icon} className="w-3.5 h-3.5" />
                     </div>
-                    <span className="text-xs font-serif font-bold text-[#1E2922] truncate">{cat.name}</span>
+                    <span className="text-xs font-serif font-bold text-[#1E2922] truncate">{translateDataName(cat.name, language)}</span>
                   </div>
                   {over ? (
                     <span className="text-[10px] font-mono font-bold text-rose-800 bg-rose-100 border border-rose-300 rounded-full px-2 py-0.5 whitespace-nowrap">
-                      Over by {formatCurrency(Math.abs(catRemaining), currency)}
+                      {t.overByBadge.replace('{amount}', formatCurrency(Math.abs(catRemaining), currency))}
                     </span>
                   ) : (
                     <span className="text-[10px] font-mono text-[#627064] whitespace-nowrap">
-                      {formatCurrency(catRemaining, currency)} left
+                      {formatCurrency(catRemaining, currency)} {t.amountLeftSuffix}
                     </span>
                   )}
                 </div>

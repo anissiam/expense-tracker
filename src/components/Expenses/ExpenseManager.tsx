@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useExpense } from '../../context/ExpenseContext';
 import { formatCurrency } from '../../data/currencies';
+import { translateDataName } from '../../data/categoryTranslations';
 import { DynamicIcon } from '../Common/DynamicIcon';
 import { Expense, PaymentMethod } from '../../types';
 import { VoiceExpenseModal } from './VoiceExpenseModal';
@@ -20,12 +21,12 @@ import {
   Mic
 } from 'lucide-react';
 
-const PAYMENT_METHODS: { id: PaymentMethod; label: string; icon: React.FC<any> }[] = [
-  { id: 'credit', label: 'Credit Card', icon: CreditCard },
-  { id: 'debit', label: 'Debit Card', icon: CreditCard },
-  { id: 'cash', label: 'Cash', icon: Banknote },
-  { id: 'apple_pay', label: 'Apple Pay', icon: Smartphone },
-  { id: 'bank_transfer', label: 'Bank Transfer', icon: Building2 },
+const PAYMENT_METHODS: { id: PaymentMethod; icon: React.FC<any> }[] = [
+  { id: 'credit', icon: CreditCard },
+  { id: 'debit', icon: CreditCard },
+  { id: 'cash', icon: Banknote },
+  { id: 'apple_pay', icon: Smartphone },
+  { id: 'bank_transfer', icon: Building2 },
 ];
 
 export const ExpenseManager: React.FC = () => {
@@ -37,10 +38,18 @@ export const ExpenseManager: React.FC = () => {
     categories,
     currency,
     activeMonth,
+    language,
     t,
     canEditBudget,
   } = useExpense();
   const readOnly = !canEditBudget;
+
+  const pmLabel = (id: PaymentMethod) =>
+    id === 'credit' ? t.creditCard
+    : id === 'debit' ? t.debitCard
+    : id === 'cash' ? t.cash
+    : id === 'apple_pay' ? t.applePay
+    : t.bankTransfer;
 
   // Search & Filter State
   const [searchTerm, setSearchTerm] = useState('');
@@ -99,7 +108,7 @@ export const ExpenseManager: React.FC = () => {
 
   const handleAiAutoCategorize = async () => {
     if (!title.trim()) {
-      alert('Please enter an expense title first (e.g. "Starbucks Coffee")');
+      alert(t.expenseTitleRequiredAlert);
       return;
     }
     setIsCategorizing(true);
@@ -129,7 +138,7 @@ export const ExpenseManager: React.FC = () => {
     e.preventDefault();
     const parsedAmount = parseFloat(amount);
     if (!title.trim() || isNaN(parsedAmount) || parsedAmount <= 0 || !categoryId) {
-      alert('Please fill out all required fields with a valid positive amount.');
+      alert(t.invalidExpenseFormAlert);
       return;
     }
 
@@ -171,7 +180,7 @@ export const ExpenseManager: React.FC = () => {
       return [
         e.date,
         `"${e.title.replace(/"/g, '""')}"`,
-        `"${cat?.name || 'General'}"`,
+        `"${cat?.name || t.generalCategoryFallback}"`,
         e.amount,
         e.paymentMethod,
         `"${(e.notes || '').replace(/"/g, '""')}"`,
@@ -214,16 +223,16 @@ export const ExpenseManager: React.FC = () => {
           <button
             onClick={() => setShowVoiceModal(true)}
             disabled={readOnly}
-            title={readOnly ? 'View-only access' : undefined}
+            title={readOnly ? t.viewOnlyAccessTitle : undefined}
             className="px-4 py-2.5 rounded-2xl bg-[#28372B] hover:bg-[#1F2B21] text-amber-200 border border-[#1F2B21] text-xs font-serif font-bold flex items-center gap-2 transition shadow-sm disabled:opacity-50"
           >
             <Mic className="w-4 h-4" />
-            <span>Voice Expense</span>
+            <span>{t.voiceExpenseBtn}</span>
           </button>
           <button
             onClick={openAddModal}
             disabled={readOnly}
-            title={readOnly ? 'View-only access' : undefined}
+            title={readOnly ? t.viewOnlyAccessTitle : undefined}
             className="px-5 py-2.5 rounded-2xl bg-amber-200 hover:bg-amber-100 text-[#1E2B21] font-serif font-bold text-xs flex items-center gap-2 shadow-sm transition disabled:opacity-50"
           >
             <Plus className="w-4 h-4 text-[#1E2B21]" />
@@ -257,7 +266,7 @@ export const ExpenseManager: React.FC = () => {
             <option value="all">{t.allCategories} ({categories.length})</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.name}
+                {translateDataName(c.name, language)}
               </option>
             ))}
           </select>
@@ -273,7 +282,7 @@ export const ExpenseManager: React.FC = () => {
             <option value="all">{t.allPaymentMethods}</option>
             {PAYMENT_METHODS.map((pm) => (
               <option key={pm.id} value={pm.id}>
-                {pm.label}
+                {pmLabel(pm.id)}
               </option>
             ))}
           </select>
@@ -287,12 +296,12 @@ export const ExpenseManager: React.FC = () => {
           <table className="w-full text-left rtl:text-right text-xs text-[#232B25]">
             <thead className="bg-[#EAE5DC] text-[#627064] font-mono font-bold uppercase tracking-wider border-b border-[#DCD5C8] text-[10px]">
               <tr>
-                <th className="py-4 px-5">Expense Details</th>
-                <th className="py-4 px-5">Category</th>
-                <th className="py-4 px-5">Payment Method</th>
-                <th className="py-4 px-5">Date</th>
-                <th className="py-4 px-5 text-right rtl:text-left">Amount</th>
-                <th className="py-4 px-5 text-right rtl:text-left">Actions</th>
+                <th className="py-4 px-5">{t.expenseDetailsHeader}</th>
+                <th className="py-4 px-5">{t.category}</th>
+                <th className="py-4 px-5">{t.paymentMethod}</th>
+                <th className="py-4 px-5">{t.date}</th>
+                <th className="py-4 px-5 text-right rtl:text-left">{t.amount}</th>
+                <th className="py-4 px-5 text-right rtl:text-left">{t.actions}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E8E2D7]">
@@ -311,9 +320,9 @@ export const ExpenseManager: React.FC = () => {
                               ? 'bg-amber-200/60 text-[#5b4a1e] border-amber-300'
                               : 'bg-[#EAE5DC] text-[#627064] border-[#DCD5C8]'
                           }`}
-                          title={exp.source === 'voice' ? 'Created via voice entry' : 'Created manually'}
+                          title={exp.source === 'voice' ? t.voiceSourceTitle : t.manualSourceTitle}
                         >
-                          {exp.source === 'voice' ? '🎙 voice' : 'manual'}
+                          {exp.source === 'voice' ? t.sourceVoiceBadge : t.sourceManualBadge}
                         </span>
                       </div>
                       {exp.notes && (
@@ -331,15 +340,15 @@ export const ExpenseManager: React.FC = () => {
                           </div>
                         )}
                         <div>
-                          <div className="font-semibold text-[#1E2922]">{cat?.name || 'General'}</div>
-                          {sub && <div className="text-[10px] font-mono text-[#78857A]">{sub.name}</div>}
+                          <div className="font-semibold text-[#1E2922]">{translateDataName(cat?.name, language) || t.generalCategoryFallback}</div>
+                          {sub && <div className="text-[10px] font-mono text-[#78857A]">{translateDataName(sub.name, language)}</div>}
                         </div>
                       </div>
                     </td>
 
                     <td className="py-4 px-5">
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#EAE5DC] border border-[#DCD5C8] text-[#28372B] text-[10px] font-mono uppercase font-bold">
-                        {exp.paymentMethod.replace('_', ' ')}
+                        {pmLabel(exp.paymentMethod)}
                       </span>
                     </td>
 
@@ -356,17 +365,17 @@ export const ExpenseManager: React.FC = () => {
                         onClick={() => openEditModal(exp)}
                         disabled={readOnly}
                         className="p-1.5 rounded-xl bg-[#EAE5DC] hover:bg-[#E2DDD3] text-[#28372B] transition disabled:opacity-50"
-                        title={readOnly ? 'View-only access' : 'Edit Expense'}
+                        title={readOnly ? t.viewOnlyAccessTitle : t.editExpenseTitleAttr}
                       >
                         <Edit className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => {
-                          if (confirm(`Delete expense "${exp.title}"?`)) deleteExpense(exp.id);
+                          if (confirm(t.deleteExpenseConfirm.replace('{title}', exp.title))) deleteExpense(exp.id);
                         }}
                         disabled={readOnly}
                         className="p-1.5 rounded-xl bg-[#EAE5DC] hover:bg-[#E2DDD3] text-rose-700 transition disabled:opacity-50"
-                        title={readOnly ? 'View-only access' : 'Delete Expense'}
+                        title={readOnly ? t.viewOnlyAccessTitle : t.deleteExpenseTitleAttr}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -378,7 +387,7 @@ export const ExpenseManager: React.FC = () => {
               {filteredExpenses.length === 0 && (
                 <tr>
                   <td colSpan={6} className="text-center py-12 text-[#78857A] font-mono italic text-xs">
-                    No expense records matching your search/filters
+                    {t.noExpensesFound}
                   </td>
                 </tr>
               )}
@@ -414,13 +423,13 @@ export const ExpenseManager: React.FC = () => {
                     className="text-[11px] font-mono font-bold text-[#28372B] hover:underline flex items-center gap-1"
                   >
                     <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                    {isCategorizing ? 'Categorizing...' : t.autoCategorizeBtn}
+                    {isCategorizing ? t.categorizing : t.autoCategorizeBtn}
                   </button>
                 </div>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Uber Ride or Grocery Store"
+                  placeholder={t.expenseTitlePlaceholder}
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className="w-full bg-[#EAE5DC] border border-[#DCD5C8] rounded-2xl px-4 py-2.5 text-sm text-[#1E2922] focus:outline-none focus:ring-2 focus:ring-[#28372B]"
@@ -447,7 +456,7 @@ export const ExpenseManager: React.FC = () => {
 
                 <div>
                   <label className="text-xs font-mono font-bold text-[#627064] uppercase block mb-1">
-                    Date
+                    {t.date}
                   </label>
                   <input
                     type="date"
@@ -475,14 +484,15 @@ export const ExpenseManager: React.FC = () => {
                   >
                     {categories.map((c) => (
                       <option key={c.id} value={c.id}>
-                        {c.name} — {formatCurrency(c.allocated - c.spent, currency)} left
+                        {translateDataName(c.name, language)} — {formatCurrency(c.allocated - c.spent, currency)} {t.amountLeftSuffix}
                       </option>
                     ))}
                   </select>
                   {activeCategoryObj && (
                     <p className="text-[11px] font-mono text-[#78857A] mt-1">
-                      {formatCurrency(activeCategoryObj.spent, currency)} spent of{' '}
-                      {formatCurrency(activeCategoryObj.allocated, currency)}
+                      {t.categorySpentOfHint
+                        .replace('{spent}', formatCurrency(activeCategoryObj.spent, currency))
+                        .replace('{allocated}', formatCurrency(activeCategoryObj.allocated, currency))}
                     </p>
                   )}
                 </div>
@@ -496,10 +506,10 @@ export const ExpenseManager: React.FC = () => {
                     onChange={(e) => setSubcategoryId(e.target.value)}
                     className="w-full bg-[#EAE5DC] border border-[#DCD5C8] rounded-2xl px-3.5 py-2.5 text-xs text-[#1E2922] font-semibold focus:outline-none focus:ring-2 focus:ring-[#28372B]"
                   >
-                    <option value="">(None)</option>
+                    <option value="">{t.noneOption}</option>
                     {activeCategoryObj?.subcategories.map((s) => (
                       <option key={s.id} value={s.id}>
-                        {s.name}
+                        {translateDataName(s.name, language)}
                       </option>
                     ))}
                   </select>
@@ -527,7 +537,7 @@ export const ExpenseManager: React.FC = () => {
                         }`}
                       >
                         <Icon className="w-3.5 h-3.5 shrink-0" />
-                        <span className="text-[11px] font-mono truncate">{pm.label}</span>
+                        <span className="text-[11px] font-mono truncate">{pmLabel(pm.id)}</span>
                       </button>
                     );
                   })}
@@ -541,7 +551,7 @@ export const ExpenseManager: React.FC = () => {
                 </label>
                 <textarea
                   rows={2}
-                  placeholder="e.g. Order #1042 or receipt notes"
+                  placeholder={t.expenseNotesPlaceholder}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   className="w-full bg-[#EAE5DC] border border-[#DCD5C8] rounded-2xl px-3.5 py-2 text-xs text-[#1E2922] focus:outline-none focus:ring-2 focus:ring-[#28372B]"
@@ -551,9 +561,9 @@ export const ExpenseManager: React.FC = () => {
               {/* Overspend warning (Phase 1: deduction preview) */}
               {willOverspend && activeCategoryObj && (
                 <div className="text-xs font-mono text-amber-900 bg-amber-100 border border-amber-300 rounded-2xl px-3 py-2">
-                  This will put {activeCategoryObj.name} over budget by{' '}
-                  {formatCurrency(parsedPreview - activeRemaining, currency)}. It will still save, flagged as
-                  overspent.
+                  {t.overspendWarning
+                    .replace('{name}', translateDataName(activeCategoryObj.name, language))
+                    .replace('{amt}', formatCurrency(parsedPreview - activeRemaining, currency))}
                 </div>
               )}
 

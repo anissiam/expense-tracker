@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useExpense } from '../../context/ExpenseContext';
 import { formatCurrency } from '../../data/currencies';
+import { translateDataName } from '../../data/categoryTranslations';
 import { DynamicIcon } from '../Common/DynamicIcon';
 import {
   Layers,
@@ -20,6 +21,7 @@ export const BudgetTemplatesView: React.FC<BudgetTemplatesViewProps> = ({ onAppl
     addCustomTemplate,
     budgetCycle,
     currency,
+    language,
     t,
   } = useExpense();
 
@@ -38,7 +40,7 @@ export const BudgetTemplatesView: React.FC<BudgetTemplatesViewProps> = ({ onAppl
   const handleCreateCustom = (e: React.FormEvent) => {
     e.preventDefault();
     if (!customName.trim()) return;
-    addCustomTemplate(customName.trim(), customDesc.trim() || 'Custom user allocation preset');
+    addCustomTemplate(customName.trim(), customDesc.trim() || t.customTemplateDefaultDesc);
     setCustomName('');
     setCustomDesc('');
     setShowCustomModal(false);
@@ -86,15 +88,15 @@ export const BudgetTemplatesView: React.FC<BudgetTemplatesViewProps> = ({ onAppl
                     </div>
                     <div>
                       <h3 className="font-serif font-bold text-lg text-[#1E2922] flex items-center gap-2">
-                        <span>{tpl.name}</span>
+                        <span>{translateDataName(tpl.name, language)}</span>
                         {tpl.isDefault && (
                           <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#EAE5DC] text-[#28372B] border border-[#DCD5C8]">
-                            Popular
+                            {t.popularBadge}
                           </span>
                         )}
                       </h3>
                       <p className="text-xs font-mono text-[#627064] mt-0.5 leading-relaxed">
-                        {tpl.description}
+                        {translateDataName(tpl.description, language)}
                       </p>
                     </div>
                   </div>
@@ -103,7 +105,7 @@ export const BudgetTemplatesView: React.FC<BudgetTemplatesViewProps> = ({ onAppl
                 {/* Category Allocations breakdown */}
                 <div className="space-y-2 pt-2 border-t border-[#E8E2D7]">
                   <div className="text-[10px] font-mono font-bold text-[#627064] uppercase tracking-wider">
-                    Allocation Breakdown:
+                    {t.allocationBreakdownTitle}
                   </div>
                   <div className="space-y-1.5">
                     {tpl.categoryAllocations.map((alloc, idx) => {
@@ -116,7 +118,7 @@ export const BudgetTemplatesView: React.FC<BudgetTemplatesViewProps> = ({ onAppl
                         >
                           <div className="flex items-center gap-2">
                             <DynamicIcon name={alloc.icon} className="w-3.5 h-3.5 text-[#28372B] shrink-0" />
-                            <span className="font-semibold truncate max-w-xs">{alloc.categoryName}</span>
+                            <span className="font-semibold truncate max-w-xs">{translateDataName(alloc.categoryName, language)}</span>
                           </div>
                           <div className="flex items-center gap-2 shrink-0 font-mono">
                             <span className="text-[11px] text-[#627064]">{alloc.percentageOfIncome}%</span>
@@ -134,7 +136,7 @@ export const BudgetTemplatesView: React.FC<BudgetTemplatesViewProps> = ({ onAppl
               {/* Action Button */}
               <div className="pt-3 border-t border-[#E8E2D7] flex items-center justify-between">
                 <span className="text-[11px] font-mono text-[#78857A] italic">
-                  Based on income ({formatCurrency(budgetCycle.totalIncome, currency)})
+                  {t.basedOnIncomeNote.replace('{amount}', formatCurrency(budgetCycle.totalIncome, currency))}
                 </span>
                 <button
                   onClick={() => handleApply(tpl.id)}
@@ -169,7 +171,7 @@ export const BudgetTemplatesView: React.FC<BudgetTemplatesViewProps> = ({ onAppl
           <div className="bg-[#FAF8F5] border border-[#E3DDD3] rounded-3xl w-full max-w-md p-6 space-y-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-[#E8E2D7] pb-3">
               <h3 className="text-lg font-serif font-bold text-[#1E2922]">
-                Save Current Allocations as Template
+                {t.saveAsTemplateTitle}
               </h3>
               <button
                 onClick={() => setShowCustomModal(false)}
@@ -182,12 +184,12 @@ export const BudgetTemplatesView: React.FC<BudgetTemplatesViewProps> = ({ onAppl
             <form onSubmit={handleCreateCustom} className="space-y-4">
               <div>
                 <label className="text-xs font-mono font-bold text-[#627064] uppercase block mb-1">
-                  Template Name
+                  {t.templateNameLabel}
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. My Conservative Allocation"
+                  placeholder={t.customTemplateNamePlaceholder}
                   value={customName}
                   onChange={(e) => setCustomName(e.target.value)}
                   className="w-full bg-[#EAE5DC] border border-[#DCD5C8] rounded-2xl px-4 py-2.5 text-xs text-[#1E2922]"
@@ -196,11 +198,11 @@ export const BudgetTemplatesView: React.FC<BudgetTemplatesViewProps> = ({ onAppl
 
               <div>
                 <label className="text-xs font-mono font-bold text-[#627064] uppercase block mb-1">
-                  Description
+                  {t.templateDescriptionLabel}
                 </label>
                 <textarea
                   rows={2}
-                  placeholder="e.g. 50% essentials, 30% savings, 20% lifestyle"
+                  placeholder={t.customTemplateDescPlaceholder}
                   value={customDesc}
                   onChange={(e) => setCustomDesc(e.target.value)}
                   className="w-full bg-[#EAE5DC] border border-[#DCD5C8] rounded-2xl px-4 py-2.5 text-xs text-[#1E2922]"
@@ -213,13 +215,13 @@ export const BudgetTemplatesView: React.FC<BudgetTemplatesViewProps> = ({ onAppl
                   onClick={() => setShowCustomModal(false)}
                   className="px-4 py-2.5 rounded-2xl bg-[#EAE5DC] text-[#354238] text-xs font-mono font-bold"
                 >
-                  Cancel
+                  {t.cancelBtn}
                 </button>
                 <button
                   type="submit"
                   className="px-6 py-2.5 rounded-2xl bg-[#28372B] hover:bg-[#1F2B21] text-amber-100 text-xs font-serif font-bold shadow-md"
                 >
-                  Save Preset
+                  {t.savePresetBtn}
                 </button>
               </div>
             </form>

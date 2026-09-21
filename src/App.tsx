@@ -17,7 +17,7 @@ import { InviteAcceptView } from './components/Partners/InviteAcceptView';
 import { AccountsIncomingView } from './components/Accounts/AccountsIncomingView';
 
 function AppContent() {
-  const { isAuthenticated, isLoading } = useExpense();  const [activeTab, setActiveTab] = useState<TabType>('dashboard');
+  const { isAuthenticated, isLoading, t } = useExpense();  const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isClosingOpen, setIsClosingOpen] = useState(false);
 
@@ -39,7 +39,7 @@ function AppContent() {
           <div className="w-12 h-12 rounded-2xl bg-[#28372B] mx-auto flex items-center justify-center animate-pulse">
             <span className="text-amber-200 font-bold">₪</span>
           </div>
-          <p className="text-xs font-mono text-[#627064] uppercase tracking-widest">Loading your budget…</p>
+          <p className="text-xs font-mono text-[#627064] uppercase tracking-widest">{t.loadingBudget}</p>
         </div>
       </div>
     );
@@ -100,9 +100,9 @@ function AppContent() {
                 <div className="w-12 h-12 rounded-2xl bg-[#28372B] text-amber-200 border border-[#1F2B21] mx-auto flex items-center justify-center font-bold text-xl">
                   🔒
                 </div>
-                <h2 className="text-xl font-serif font-bold text-[#1E2922]">Monthly Review & Closing Workflow</h2>
+                <h2 className="text-xl font-serif font-bold text-[#1E2922]">{t.closingIntroTitle}</h2>
                 <p className="text-xs text-[#526054] max-w-md mx-auto leading-relaxed">
-                  Review planned vs actual performance, calculate category variances, and choose how unspent surplus rolls over into Savings Vault or next month.
+                  {t.closingIntroDesc}
                 </p>
                 <button
                   onClick={() => setIsClosingOpen(true)}
@@ -125,7 +125,7 @@ function AppContent() {
 
       {/* Editorial Footer */}
       <footer className="border-t border-[#E3DDD3] bg-[#FAF8F5] py-3 text-center text-[10px] font-mono text-[#626F64] uppercase tracking-wider">
-        MINIMAL FINANCIAL RESET PLANNER • DESIGN YOUR FREEDOM • SECURE LOCAL INSTANCE
+        {t.footerTagline}
       </footer>
 
       {/* Global Modals */}

@@ -48,7 +48,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
   };
 
   const handleLogout = async () => {
-    if (confirm('Sign out of your account?')) {
+    if (confirm(t.profileSignOutConfirm)) {
       await logoutUser();
       onClose();
     }
@@ -84,7 +84,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
         <form onSubmit={handleSave} className="space-y-4 pt-2 border-t border-slate-800">
           <div>
             <label className="text-xs font-bold text-slate-300 uppercase block mb-1">
-              Account Name
+              {t.profileAccountNameLabel}
             </label>
             <input
               type="text"
@@ -97,7 +97,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
 
           <div>
             <label className="text-xs font-bold text-slate-300 uppercase block mb-1">
-              Email Address
+              {t.profileEmailLabel}
             </label>
             <input
               type="email"
@@ -111,7 +111,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-bold text-slate-300 uppercase block mb-1">
-                Preferred Currency
+                {t.profileCurrencyLabel}
               </label>
               <select
                 value={currency}
@@ -128,7 +128,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
 
             <div>
               <label className="text-xs font-bold text-slate-300 uppercase block mb-1">
-                Monthly Pay Day
+                {t.profilePayDayLabel}
               </label>
               <input
                 type="number"
@@ -178,7 +178,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
               className="text-xs font-semibold text-rose-400 hover:underline flex items-center gap-1.5"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span>Sign Out</span>
+              <span>{t.profileSignOutBtn}</span>
             </button>
 
             <button
@@ -186,7 +186,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onCl
               className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-emerald-600/20"
             >
               {isSaved ? <Check className="w-4 h-4" /> : null}
-              <span>{isSaved ? 'Saved!' : 'Save Settings'}</span>
+              <span>{isSaved ? t.profileSaved : t.saveSettingsBtn}</span>
             </button>
           </div>
         </form>

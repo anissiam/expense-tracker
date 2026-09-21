@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useExpense } from '../../context/ExpenseContext';
 import { formatCurrency } from '../../data/currencies';
+import { translateDataName } from '../../data/categoryTranslations';
 import { DynamicIcon } from '../Common/DynamicIcon';
 import {
   FolderKanban,
@@ -47,6 +48,7 @@ export const CategoryManagement: React.FC = () => {
     deleteSubcategory,
     currency,
     budgetCycle,
+    language,
     t,
   } = useExpense();
 
@@ -182,15 +184,15 @@ export const CategoryManagement: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-serif font-bold text-base text-[#1E2922] flex items-center gap-2">
-                      <span>{cat.name}</span>
+                      <span>{translateDataName(cat.name, language)}</span>
                       {cat.isArchived && (
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#EAE5DC] text-[#627064] border border-[#DCD5C8]">
-                          Archived
+                          {t.archivedBadge}
                         </span>
                       )}
                     </h3>
                     <div className="text-[11px] font-mono text-[#78857A] mt-0.5">
-                      {cat.subcategories.length} Subcategories • Order #{index + 1}
+                      {cat.subcategories.length} {t.subcategoriesList} • {t.categoryOrderLabel}{index + 1}
                     </div>
                   </div>
                 </div>
@@ -201,7 +203,7 @@ export const CategoryManagement: React.FC = () => {
                     onClick={() => reorderCategory(cat.id, 'up')}
                     disabled={index === 0}
                     className="p-1.5 rounded-xl bg-[#EAE5DC] hover:bg-[#E2DDD3] text-[#28372B] disabled:opacity-30 transition"
-                    title="Move Up"
+                    title={t.moveUp}
                   >
                     <ArrowUp className="w-3.5 h-3.5" />
                   </button>
@@ -209,23 +211,23 @@ export const CategoryManagement: React.FC = () => {
                     onClick={() => reorderCategory(cat.id, 'down')}
                     disabled={index === categories.length - 1}
                     className="p-1.5 rounded-xl bg-[#EAE5DC] hover:bg-[#E2DDD3] text-[#28372B] disabled:opacity-30 transition"
-                    title="Move Down"
+                    title={t.moveDown}
                   >
                     <ArrowDown className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => archiveCategory(cat.id)}
                     className="p-1.5 rounded-xl bg-[#EAE5DC] hover:bg-[#E2DDD3] text-amber-700 transition"
-                    title={cat.isArchived ? 'Unarchive' : 'Archive'}
+                    title={cat.isArchived ? t.unarchive : t.archive}
                   >
                     <Archive className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => {
-                      if (confirm(`Delete category "${cat.name}"?`)) deleteCategory(cat.id);
+                      if (confirm(t.deleteCategoryConfirm.replace('{name}', translateDataName(cat.name, language)))) deleteCategory(cat.id);
                     }}
                     className="p-1.5 rounded-xl bg-[#EAE5DC] hover:bg-[#E2DDD3] text-rose-700 transition"
-                    title="Delete Category"
+                    title={t.deleteCategoryTitle}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -324,7 +326,7 @@ export const CategoryManagement: React.FC = () => {
                       key={sub.id}
                       className="flex items-center justify-between p-2.5 rounded-xl bg-[#EAE5DC]/80 hover:bg-[#EAE5DC] text-xs text-[#1E2922] border border-[#DCD5C8]"
                     >
-                      <span className="font-semibold">{sub.name}</span>
+                      <span className="font-semibold">{translateDataName(sub.name, language)}</span>
                       <div className="flex items-center gap-3">
                         <span className="font-mono text-xs text-[#627064]">
                           {formatCurrency(sub.spent, currency)} / <strong className="text-[#1E2922]">{formatCurrency(sub.allocated, currency)}</strong>
@@ -340,7 +342,7 @@ export const CategoryManagement: React.FC = () => {
                   ))}
                   {cat.subcategories.length === 0 && (
                     <div className="text-center py-2 text-[11px] font-mono text-[#8A968C] italic">
-                      No subcategories added yet
+                      {t.noSubcategoriesYet}
                     </div>
                   )}
                 </div>
@@ -358,7 +360,7 @@ export const CategoryManagement: React.FC = () => {
             <div className="flex items-center justify-between border-b border-[#E8E2D7] pb-3">
               <h3 className="text-xl font-serif font-bold text-[#1E2922] flex items-center gap-2">
                 <Plus className="w-5 h-5 text-[#28372B]" />
-                Create New Category
+                {t.createCategoryModalTitle}
               </h3>
               <button
                 onClick={() => setShowAddModal(false)}
@@ -371,12 +373,12 @@ export const CategoryManagement: React.FC = () => {
             <form onSubmit={handleCreateCategory} className="space-y-4">
               <div>
                 <label className="text-xs font-mono font-bold text-[#627064] uppercase block mb-1">
-                  Category Name
+                  {t.categoryName}
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Travel & Experiences"
+                  placeholder={t.newCategoryNamePlaceholder}
                   value={newCatName}
                   onChange={(e) => setNewCatName(e.target.value)}
                   className="w-full bg-[#EAE5DC] border border-[#DCD5C8] rounded-2xl px-4 py-2.5 text-sm text-[#1E2922] focus:outline-none focus:ring-2 focus:ring-[#28372B]"
@@ -385,7 +387,7 @@ export const CategoryManagement: React.FC = () => {
 
               <div>
                 <label className="text-xs font-mono font-bold text-[#627064] uppercase block mb-1">
-                  Select Icon
+                  {t.chooseIcon}
                 </label>
                 <div className="flex flex-wrap gap-2 max-h-28 overflow-y-auto p-2.5 bg-[#EAE5DC] rounded-2xl border border-[#DCD5C8]">
                   {AVAILABLE_ICONS.map((iconName) => (
@@ -407,12 +409,12 @@ export const CategoryManagement: React.FC = () => {
 
               <div>
                 <label className="text-xs font-mono font-bold text-[#627064] uppercase block mb-1">
-                  Initial Monthly Budget Allocation ({currency})
+                  {t.initialAllocationLabel.replace('{currency}', currency)}
                 </label>
                 <input
                   type="number"
                   min="0"
-                  placeholder="e.g. 500"
+                  placeholder={t.allocationAmountPlaceholder}
                   value={newCatAllocated}
                   onChange={(e) => setNewCatAllocated(e.target.value)}
                   className="w-full bg-[#EAE5DC] border border-[#DCD5C8] rounded-2xl px-4 py-2.5 text-sm text-[#1E2922] font-serif font-bold focus:outline-none focus:ring-2 focus:ring-[#28372B]"
@@ -421,12 +423,12 @@ export const CategoryManagement: React.FC = () => {
 
               <div>
                 <label className="text-xs font-mono font-bold text-[#627064] uppercase block mb-1">
-                  Subcategories (Optional)
+                  {t.initialSubcategories}
                 </label>
                 <div className="flex gap-2 mb-2">
                   <input
                     type="text"
-                    placeholder="Subcategory title (e.g. Flight Tickets)"
+                    placeholder={t.newSubcategoryPlaceholder}
                     value={newSubcatInput}
                     onChange={(e) => setNewSubcatInput(e.target.value)}
                     className="flex-1 bg-[#EAE5DC] border border-[#DCD5C8] rounded-2xl px-3.5 py-2 text-xs text-[#1E2922]"
@@ -436,7 +438,7 @@ export const CategoryManagement: React.FC = () => {
                     onClick={handleAddSubcatToNewList}
                     className="px-4 py-2 bg-[#28372B] text-amber-100 rounded-2xl text-xs font-bold"
                   >
-                    Add
+                    {t.addSubcatBtn}
                   </button>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
@@ -464,13 +466,13 @@ export const CategoryManagement: React.FC = () => {
                   onClick={() => setShowAddModal(false)}
                   className="px-4 py-2.5 rounded-2xl bg-[#EAE5DC] text-[#354238] text-xs font-mono font-bold"
                 >
-                  Cancel
+                  {t.cancelBtn}
                 </button>
                 <button
                   type="submit"
                   className="px-6 py-2.5 rounded-2xl bg-[#28372B] hover:bg-[#1F2B21] text-amber-100 text-xs font-serif font-bold shadow-md"
                 >
-                  Create Category
+                  {t.createCategoryBtn}
                 </button>
               </div>
             </form>

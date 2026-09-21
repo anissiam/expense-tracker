@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useExpense } from '../../context/ExpenseContext';
 import { CURRENCIES } from '../../data/currencies';
 import { CurrencyCode } from '../../types';
-import { Language } from '../../data/translations';
+import { Language } from '../../locales';
 import {
   User,
   Sparkles,
@@ -54,7 +54,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
           <div>
             <div className="text-[11px] font-mono tracking-widest text-[#626F64] uppercase font-bold flex items-center gap-1.5">
-              <span>{language === 'ar' ? 'صباح الخير، أنت قادر على تحقيق هذا!' : "GOOD MORNING, YOU'VE GOT THIS!"}</span>
+              <span>{t.navbarGreeting}</span>
             </div>
           </div>
         </div>
@@ -107,7 +107,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     language === 'en' ? 'bg-amber-300/20 text-amber-200' : 'text-slate-300 hover:bg-white/10'
                   }`}
                 >
-                  <span>English</span>
+                  <span>{t.english}</span>
                   <span className="text-[10px] text-amber-300/70">EN</span>
                 </button>
                 <button
@@ -119,7 +119,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     language === 'ar' ? 'bg-amber-300/20 text-amber-200' : 'text-slate-300 hover:bg-white/10'
                   }`}
                 >
-                  <span>العربية</span>
+                  <span>{t.arabic}</span>
                   <span className="text-[10px] text-amber-300/70">AR</span>
                 </button>
               </div>

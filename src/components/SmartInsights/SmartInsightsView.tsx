@@ -59,26 +59,28 @@ export const SmartInsightsView: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         
         <div className="p-5 rounded-3xl bg-[#FAF8F5] border border-[#E3DDD3] space-y-1 shadow-xs">
-          <div className="text-[10px] font-mono font-bold text-[#627064] uppercase tracking-wider">Budget Velocity</div>
-          <div className="text-xl font-serif font-extrabold text-[#1E2922]">{spentPercent.toFixed(1)}% Consumed</div>
+          <div className="text-[10px] font-mono font-bold text-[#627064] uppercase tracking-wider">{t.budgetVelocityTitle}</div>
+          <div className="text-xl font-serif font-extrabold text-[#1E2922]">
+            {spentPercent.toFixed(1)}{t.consumedPercentSuffix}
+          </div>
           <p className="text-xs font-mono text-[#78857A]">
-            {spentPercent > 85 ? 'High velocity - consider pausing non-essentials.' : 'Controlled pacing for active cycle.'}
+            {spentPercent > 85 ? t.budgetVelocityHighMsg : t.budgetVelocityControlledMsg}
           </p>
         </div>
 
         <div className="p-5 rounded-3xl bg-[#FAF8F5] border border-[#E3DDD3] space-y-1 shadow-xs">
-          <div className="text-[10px] font-mono font-bold text-[#627064] uppercase tracking-wider">Unallocated Reserve</div>
+          <div className="text-[10px] font-mono font-bold text-[#627064] uppercase tracking-wider">{t.unallocatedReserveTitle}</div>
           <div className="text-xl font-serif font-extrabold text-[#28372B]">{formatCurrency(remaining, currency)}</div>
           <p className="text-xs font-mono text-[#78857A]">
-            Available surplus for savings or unexpected expenses
+            {t.unallocatedReserveDesc}
           </p>
         </div>
 
         <div className="p-5 rounded-3xl bg-[#FAF8F5] border border-[#E3DDD3] space-y-1 shadow-xs">
-          <div className="text-[10px] font-mono font-bold text-[#627064] uppercase tracking-wider">Protected Savings Balance</div>
+          <div className="text-[10px] font-mono font-bold text-[#627064] uppercase tracking-wider">{t.protectedSavingsTitle}</div>
           <div className="text-xl font-serif font-extrabold text-[#8C5D4B]">{formatCurrency(savingsBalance, currency)}</div>
           <p className="text-xs font-mono text-[#78857A]">
-            Safely stored in Savings Vault
+            {t.protectedSavingsDesc}
           </p>
         </div>
 
@@ -88,7 +90,7 @@ export const SmartInsightsView: React.FC = () => {
       <div className="space-y-4">
         <h3 className="text-sm font-mono font-bold text-[#627064] uppercase tracking-wider flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-[#28372B]" />
-          Active Recommendations & Warnings
+          {t.activeRecommendationsTitle}
         </h3>
 
         <div className="space-y-3">
@@ -137,7 +139,7 @@ export const SmartInsightsView: React.FC = () => {
               {ins.actionableTip && (
                 <div className="p-3.5 rounded-2xl bg-[#EAE5DC] border border-[#DCD5C8] text-xs font-mono text-[#28372B] flex items-center gap-2 font-semibold">
                   <Sparkles className="w-4 h-4 text-[#28372B] shrink-0" />
-                  <span>Action Tip: {ins.actionableTip}</span>
+                  <span>{t.actionTipPrefix}{ins.actionableTip}</span>
                 </div>
               )}
             </div>
@@ -145,7 +147,7 @@ export const SmartInsightsView: React.FC = () => {
 
           {insights.length === 0 && (
             <div className="p-8 rounded-3xl bg-[#FAF8F5] border border-[#E3DDD3] text-center text-xs font-mono text-[#78857A] italic">
-              Click &quot;Refresh AI Insights&quot; to generate real-time financial diagnostic recommendations.
+              {t.insightsEmptyPlaceholder}
             </div>
           )}
         </div>

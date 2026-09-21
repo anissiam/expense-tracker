@@ -3,7 +3,7 @@ import { useExpense } from '../../context/ExpenseContext';
 import { Wallet, LogIn, UserPlus } from 'lucide-react';
 
 export const LoginView: React.FC = () => {
-  const { login, register, authError, isLoading } = useExpense();
+  const { login, register, authError, isLoading, t } = useExpense();
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -15,11 +15,11 @@ export const LoginView: React.FC = () => {
     e.preventDefault();
     setLocalError(null);
     if (!email.trim() || !password) {
-      setLocalError('Email and password are required.');
+      setLocalError(t.authEmailPasswordRequired);
       return;
     }
     if (mode === 'register' && !name.trim()) {
-      setLocalError('Name is required.');
+      setLocalError(t.authNameRequired);
       return;
     }
     setSubmitting(true);
@@ -30,7 +30,7 @@ export const LoginView: React.FC = () => {
         await register(name.trim(), email.trim(), password);
       }
     } catch (err: any) {
-      setLocalError(err?.message || 'Authentication failed');
+      setLocalError(err?.message || t.authFailedGeneric);
     } finally {
       setSubmitting(false);
     }
@@ -44,10 +44,10 @@ export const LoginView: React.FC = () => {
             <Wallet className="w-7 h-7 text-amber-200" />
           </div>
           <h1 className="font-serif text-3xl font-extrabold tracking-tight">
-            Financial <span className="italic font-normal">Reset</span> Planner
+            {t.authAppTitle}
           </h1>
           <p className="text-xs font-mono text-amber-200/70 uppercase tracking-widest">
-            Sign in to manage your real budget data
+            {t.authSubtitle}
           </p>
         </div>
 
@@ -58,50 +58,50 @@ export const LoginView: React.FC = () => {
               onClick={() => setMode('login')}
               className={`py-2 rounded-xl text-xs font-bold transition ${mode === 'login' ? 'bg-[#28372B] text-amber-100 shadow' : 'text-[#627064]'}`}
             >
-              Sign In
+              {t.authSignIn}
             </button>
             <button
               type="button"
               onClick={() => setMode('register')}
               className={`py-2 rounded-xl text-xs font-bold transition ${mode === 'register' ? 'bg-[#28372B] text-amber-100 shadow' : 'text-[#627064]'}`}
             >
-              Register
+              {t.authRegister}
             </button>
           </div>
 
           {mode === 'register' && (
             <div>
-              <label className="text-xs font-mono font-bold text-[#627064] uppercase block mb-1">Name</label>
+              <label className="text-xs font-mono font-bold text-[#627064] uppercase block mb-1">{t.authNameLabel}</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
+                placeholder={t.authNamePlaceholder}
                 className="w-full bg-[#EAE5DC] border border-[#DCD5C8] rounded-2xl px-4 py-2.5 text-sm text-[#1E2922] focus:outline-none focus:ring-2 focus:ring-[#28372B]"
               />
             </div>
           )}
 
           <div>
-            <label className="text-xs font-mono font-bold text-[#627064] uppercase block mb-1">Email</label>
+            <label className="text-xs font-mono font-bold text-[#627064] uppercase block mb-1">{t.authEmailLabel}</label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
+              placeholder={t.authEmailPlaceholder}
               className="w-full bg-[#EAE5DC] border border-[#DCD5C8] rounded-2xl px-4 py-2.5 text-sm text-[#1E2922] focus:outline-none focus:ring-2 focus:ring-[#28372B]"
             />
           </div>
 
           <div>
-            <label className="text-xs font-mono font-bold text-[#627064] uppercase block mb-1">Password</label>
+            <label className="text-xs font-mono font-bold text-[#627064] uppercase block mb-1">{t.authPasswordLabel}</label>
             <input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder={mode === 'register' ? 'Min. 8 characters' : 'Your password'}
+              placeholder={mode === 'register' ? t.authPasswordPlaceholderRegister : t.authPasswordPlaceholderLogin}
               minLength={mode === 'register' ? 8 : undefined}
               className="w-full bg-[#EAE5DC] border border-[#DCD5C8] rounded-2xl px-4 py-2.5 text-sm text-[#1E2922] focus:outline-none focus:ring-2 focus:ring-[#28372B]"
             />
@@ -119,7 +119,7 @@ export const LoginView: React.FC = () => {
             className="w-full px-6 py-3 rounded-2xl bg-[#28372B] hover:bg-[#1F2B21] disabled:opacity-60 text-amber-100 font-serif font-bold text-sm flex items-center justify-center gap-2 shadow-md transition"
           >
             {mode === 'login' ? <LogIn className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
-            <span>{submitting ? 'Please wait…' : mode === 'login' ? 'Sign In' : 'Create Account'}</span>
+            <span>{submitting ? t.commonPleaseWait : mode === 'login' ? t.authSignIn : t.authCreateAccount}</span>
           </button>
         </form>
       </div>

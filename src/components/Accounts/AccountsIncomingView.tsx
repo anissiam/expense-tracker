@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useExpense } from '../../context/ExpenseContext';
+import { translateDataName } from '../../data/categoryTranslations';
 import { AccountWallet, AccountType, IncomingIncome, IncomingRecurrence } from '../../types';
 import {
   Landmark,
@@ -221,13 +222,13 @@ export const AccountsIncomingView: React.FC = () => {
   const getAccountTypeLabel = (type: AccountType) => {
     switch (type) {
       case 'bank':
-        return language === 'ar' ? 'حساب بنكي' : 'Bank Account';
+        return t.accountTypeBank;
       case 'wallet':
-        return language === 'ar' ? 'محفظة رقمية' : 'E-Wallet';
+        return t.accountTypeWallet;
       case 'cash':
-        return language === 'ar' ? 'نقدي / كاش' : 'Cash Vault';
+        return t.accountTypeCash;
       case 'crypto':
-        return language === 'ar' ? 'عملات / أخرى' : 'Crypto / Other';
+        return t.accountTypeCrypto;
       default:
         return type;
     }
@@ -243,7 +244,7 @@ export const AccountsIncomingView: React.FC = () => {
               <Landmark className="w-5 h-5" />
             </span>
             <span className="text-xs font-mono tracking-widest text-amber-200/80 uppercase">
-              {language === 'ar' ? 'وحدة إدارة الحسابات والدخل' : 'ACCOUNTS & INCOMING MODULE'}
+              {t.accountsModuleEyebrow}
             </span>
           </div>
           <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-amber-100">
@@ -285,7 +286,7 @@ export const AccountsIncomingView: React.FC = () => {
               {formatCurrency(totalAccountLiquidity)}
             </h3>
             <span className="inline-block mt-1 text-[11px] font-mono text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md font-semibold">
-              {accounts.length} {language === 'ar' ? 'حسابات مسجلة' : 'active accounts'}
+              {t.activeAccountsSuffix.replace('{n}', String(accounts.length))}
             </span>
           </div>
           <div className="p-3 bg-emerald-100/70 text-emerald-800 rounded-2xl border border-emerald-200/60">
@@ -303,7 +304,7 @@ export const AccountsIncomingView: React.FC = () => {
               {formatCurrency(totalPendingInflow)}
             </h3>
             <span className="inline-block mt-1 text-[11px] font-mono text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md font-semibold">
-              {incomings.filter((i) => i.status === 'pending').length} {language === 'ar' ? 'دخل قادم مستقبلي' : 'pending deposits'}
+              {incomings.filter((i) => i.status === 'pending').length} {t.pendingDepositsSuffix}
             </span>
           </div>
           <div className="p-3 bg-amber-100/70 text-amber-800 rounded-2xl border border-amber-200/60">
@@ -321,7 +322,7 @@ export const AccountsIncomingView: React.FC = () => {
               {formatCurrency(totalReceivedInflow)}
             </h3>
             <span className="inline-block mt-1 text-[11px] font-mono text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md font-semibold">
-              {incomings.filter((i) => i.status === 'received').length} {language === 'ar' ? 'تم تحصيلها' : 'received deposits'}
+              {incomings.filter((i) => i.status === 'received').length} {t.receivedDepositsSuffix}
             </span>
           </div>
           <div className="p-3 bg-emerald-100/70 text-emerald-800 rounded-2xl border border-emerald-200/60">
@@ -352,7 +353,7 @@ export const AccountsIncomingView: React.FC = () => {
           <div className="p-8 text-center bg-[#F3EFEA] rounded-2xl border border-dashed border-[#DCD5C8]">
             <Wallet className="w-10 h-10 text-[#8A968C] mx-auto mb-2" />
             <p className="text-sm font-semibold text-[#627064]">
-              {language === 'ar' ? 'لم تقم بإضافة أي بنك أو محفظة إلكترونية بعد.' : 'No banks or e-wallets added yet.'}
+              {t.emptyAccountsMessage}
             </p>
             <button
               onClick={() => handleOpenAccountModal()}
@@ -392,14 +393,14 @@ export const AccountsIncomingView: React.FC = () => {
                         <button
                           onClick={() => handleOpenAccountModal(acc)}
                           className="p-1 text-[#627064] hover:text-[#1E2922] hover:bg-[#EAE5DC] rounded-lg transition"
-                          title="Edit Account"
+                          title={t.editAccountTitleAttr}
                         >
                           <Edit3 className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => deleteAccount(acc.id)}
                           className="p-1 text-rose-600 hover:bg-rose-100 rounded-lg transition"
-                          title="Delete Account"
+                          title={t.deleteAccountTitleAttr}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -415,7 +416,7 @@ export const AccountsIncomingView: React.FC = () => {
 
                   <div className="pt-2 border-t border-[#E3DDD3]/80 flex items-center justify-between mt-2">
                     <span className="text-[10px] font-mono text-[#627064] uppercase font-bold">
-                      {language === 'ar' ? 'الرصيد المتاح' : 'Balance'}
+                      {t.accountBalanceLabel}
                     </span>
                     <span className="font-serif text-base font-bold text-[#1E2922]">
                       {formatCurrency(acc.balance)}
@@ -448,7 +449,7 @@ export const AccountsIncomingView: React.FC = () => {
                   : 'text-[#526054] hover:text-[#1E2922]'
               }`}
             >
-              {language === 'ar' ? 'الكل' : 'All'} ({incomings.length})
+              {t.filterAllLabel} ({incomings.length})
             </button>
             <button
               onClick={() => setStatusFilter('pending')}
@@ -459,7 +460,7 @@ export const AccountsIncomingView: React.FC = () => {
               }`}
             >
               <Clock className="w-3 h-3 text-amber-500" />
-              <span>{language === 'ar' ? 'القادمة' : 'Pending'}</span>
+              <span>{t.filterPendingLabel}</span>
               <span>({incomings.filter((i) => i.status === 'pending').length})</span>
             </button>
             <button
@@ -471,7 +472,7 @@ export const AccountsIncomingView: React.FC = () => {
               }`}
             >
               <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-              <span>{language === 'ar' ? 'تم الاستلام' : 'Received'}</span>
+              <span>{t.filterReceivedLabel}</span>
               <span>({incomings.filter((i) => i.status === 'received').length})</span>
             </button>
           </div>
@@ -482,7 +483,7 @@ export const AccountsIncomingView: React.FC = () => {
           <div className="p-8 text-center bg-[#F3EFEA] rounded-2xl border border-dashed border-[#DCD5C8]">
             <Clock className="w-10 h-10 text-[#8A968C] mx-auto mb-2" />
             <p className="text-sm font-semibold text-[#627064]">
-              {language === 'ar' ? 'لا يوجد أي إيداع دخل مستقبلي في هذه القائمة.' : 'No future income entries found.'}
+              {t.emptyIncomingsMessage}
             </p>
             <button
               onClick={() => handleOpenIncomingModal()}
@@ -525,24 +526,10 @@ export const AccountsIncomingView: React.FC = () => {
                           {inc.title}
                         </h3>
                         <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-[#EAE5DC] text-[#4A554C]">
-                          {inc.category}
+                          {translateDataName(inc.category, language)}
                         </span>
                         <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#EAE5DC]/80 text-[#627064]">
-                          {inc.recurrence === 'monthly'
-                            ? language === 'ar'
-                              ? 'شهري'
-                              : 'Monthly'
-                            : inc.recurrence === 'weekly'
-                            ? language === 'ar'
-                              ? 'أسبوعي'
-                              : 'Weekly'
-                            : inc.recurrence === 'yearly'
-                            ? language === 'ar'
-                              ? 'سنوي'
-                              : 'Yearly'
-                            : language === 'ar'
-                            ? 'مرة واحدة'
-                            : 'One-time'}
+                          {translateDataName(inc.recurrence, language)}
                         </span>
                       </div>
 
@@ -550,7 +537,7 @@ export const AccountsIncomingView: React.FC = () => {
                         <span className="flex items-center gap-1 font-mono">
                           <Calendar className="w-3.5 h-3.5 text-[#8A968C]" />
                           <span>
-                            {language === 'ar' ? 'تاريخ الاستلام المتوقع:' : 'Expected:'} {inc.expectedDate}
+                            {t.expectedDatePrefix} {inc.expectedDate}
                           </span>
                         </span>
 
@@ -579,11 +566,11 @@ export const AccountsIncomingView: React.FC = () => {
                       <div className="text-[10px] font-mono">
                         {isPending ? (
                           <span className="text-amber-700 font-bold bg-amber-100 px-2 py-0.5 rounded-md">
-                            {language === 'ar' ? 'قيد الانتظار' : 'Pending Inflow'}
+                            {t.pendingInflowBadge}
                           </span>
                         ) : (
                           <span className="text-emerald-800 font-bold bg-emerald-100 px-2 py-0.5 rounded-md">
-                            {language === 'ar' ? `تم الإيداع (${inc.receivedDate || ''})` : `Deposited (${inc.receivedDate || ''})`}
+                            {t.depositedBadge.replace('{date}', inc.receivedDate || '')}
                           </span>
                         )}
                       </div>
@@ -596,14 +583,14 @@ export const AccountsIncomingView: React.FC = () => {
                           className="flex items-center gap-1 px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-emerald-50 text-xs font-bold rounded-xl transition shadow-2xs"
                         >
                           <Check className="w-3.5 h-3.5" />
-                          <span>{language === 'ar' ? 'تأكيد الاستلام' : 'Mark Received'}</span>
+                          <span>{t.markReceivedBtn}</span>
                         </button>
                       )}
 
                       <button
                         onClick={() => handleOpenIncomingModal(inc)}
                         className="p-1.5 text-[#627064] hover:text-[#1E2922] hover:bg-[#EAE5DC] rounded-xl transition"
-                        title="Edit Entry"
+                        title={t.editEntryTitleAttr}
                       >
                         <Edit3 className="w-4 h-4" />
                       </button>
@@ -611,7 +598,7 @@ export const AccountsIncomingView: React.FC = () => {
                       <button
                         onClick={() => deleteIncoming(inc.id)}
                         className="p-1.5 text-rose-600 hover:bg-rose-100 rounded-xl transition"
-                        title="Delete Entry"
+                        title={t.deleteEntryTitleAttr}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -632,13 +619,7 @@ export const AccountsIncomingView: React.FC = () => {
               <div className="flex items-center gap-2">
                 <Building2 className="w-5 h-5 text-[#28372B]" />
                 <h3 className="font-serif text-lg font-bold">
-                  {editingAccount
-                    ? language === 'ar'
-                      ? 'تعديل الحساب'
-                      : 'Edit Bank / Wallet'
-                    : language === 'ar'
-                    ? 'إضافة بنك أو محفظة إلكترونية'
-                    : 'Add Bank or E-Wallet'}
+                  {editingAccount ? t.editAccountModalTitle : t.addAccountModalTitle}
                 </h3>
               </div>
               <button
@@ -652,14 +633,14 @@ export const AccountsIncomingView: React.FC = () => {
             <form onSubmit={handleSaveAccount} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-[#526054] mb-1">
-                  {language === 'ar' ? 'اسم البنك / المحفظة' : 'Account Name'} *
+                  {t.accountNameLabel} *
                 </label>
                 <input
                   type="text"
                   required
                   value={accName}
                   onChange={(e) => setAccName(e.target.value)}
-                  placeholder={language === 'ar' ? 'مثال: مصرف الراجحي، محفظة PayPal، كاش...' : 'e.g. Al Rajhi Bank, PayPal Wallet...'}
+                  placeholder={t.accountNamePlaceholder}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-[#F3EFEA] border border-[#E3DDD3] text-xs font-semibold focus:outline-none focus:border-[#28372B]"
                 />
               </div>
@@ -667,23 +648,23 @@ export const AccountsIncomingView: React.FC = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-[#526054] mb-1">
-                    {language === 'ar' ? 'نوع الحساب' : 'Account Type'}
+                    {t.accountTypeLabel}
                   </label>
                   <select
                     value={accType}
                     onChange={(e) => setAccType(e.target.value as AccountType)}
                     className="w-full px-3.5 py-2.5 rounded-xl bg-[#F3EFEA] border border-[#E3DDD3] text-xs font-semibold focus:outline-none focus:border-[#28372B]"
                   >
-                    <option value="bank">{language === 'ar' ? 'حساب بنكي' : 'Bank Account'}</option>
-                    <option value="wallet">{language === 'ar' ? 'محفظة رقمية (E-Wallet)' : 'Digital Wallet'}</option>
-                    <option value="cash">{language === 'ar' ? 'نقدي / كاش' : 'Cash Vault'}</option>
-                    <option value="crypto">{language === 'ar' ? 'عملات / أخرى' : 'Crypto / Other'}</option>
+                    <option value="bank">{t.accountTypeBank}</option>
+                    <option value="wallet">{t.accountTypeWallet}</option>
+                    <option value="cash">{t.accountTypeCash}</option>
+                    <option value="crypto">{t.accountTypeCrypto}</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-[#526054] mb-1">
-                    {language === 'ar' ? 'الرصيد الحقيقي الحاضر' : 'Current Balance'} ({currency})
+                    {t.currentBalanceLabel} ({currency})
                   </label>
                   <input
                     type="number"
@@ -698,26 +679,26 @@ export const AccountsIncomingView: React.FC = () => {
 
               <div>
                 <label className="block text-xs font-bold text-[#526054] mb-1">
-                  {language === 'ar' ? 'رقم الحساب / الايبان / البريد (اختياري)' : 'Account # / IBAN / Email (Optional)'}
+                  {t.accountNumberLabel}
                 </label>
                 <input
                   type="text"
                   value={accNumber}
                   onChange={(e) => setAccNumber(e.target.value)}
-                  placeholder="e.g. SA44 8000 0000 1234..."
+                  placeholder={t.accountNumberPlaceholder}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-[#F3EFEA] border border-[#E3DDD3] text-xs font-mono focus:outline-none focus:border-[#28372B]"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-[#526054] mb-1">
-                  {language === 'ar' ? 'ملاحظات' : 'Notes'}
+                  {t.notes}
                 </label>
                 <textarea
                   rows={2}
                   value={accNotes}
                   onChange={(e) => setAccNotes(e.target.value)}
-                  placeholder={language === 'ar' ? 'ملاحظات حول إيداع الراتب أو الاستخدام...' : 'Notes...'}
+                  placeholder={t.accountNotesPlaceholder}
                   className="w-full px-3.5 py-2 rounded-xl bg-[#F3EFEA] border border-[#E3DDD3] text-xs focus:outline-none focus:border-[#28372B]"
                 />
               </div>
@@ -734,7 +715,7 @@ export const AccountsIncomingView: React.FC = () => {
                   type="submit"
                   className="px-5 py-2 bg-[#28372B] hover:bg-[#1F2B21] text-amber-100 text-xs font-bold rounded-xl transition shadow-sm"
                 >
-                  {language === 'ar' ? 'حفظ الحساب' : 'Save Account'}
+                  {t.saveAccountBtn}
                 </button>
               </div>
             </form>
@@ -750,13 +731,7 @@ export const AccountsIncomingView: React.FC = () => {
               <div className="flex items-center gap-2">
                 <ArrowDownLeft className="w-5 h-5 text-emerald-800" />
                 <h3 className="font-serif text-lg font-bold">
-                  {editingIncoming
-                    ? language === 'ar'
-                      ? 'تعديل الدخل المستقبلي'
-                      : 'Edit Future Income Entry'
-                    : language === 'ar'
-                    ? 'جدولة دخل قادم ومستقبلي'
-                    : 'Schedule Future Incoming Deposit'}
+                  {editingIncoming ? t.editIncomingModalTitle : t.addIncomingModalTitle}
                 </h3>
               </div>
               <button
@@ -770,14 +745,14 @@ export const AccountsIncomingView: React.FC = () => {
             <form onSubmit={handleSaveIncoming} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-[#526054] mb-1">
-                  {language === 'ar' ? 'عنوان الدخل المتوقع' : 'Income Title'} *
+                  {t.incomeTitleLabel} *
                 </label>
                 <input
                   type="text"
                   required
                   value={incTitle}
                   onChange={(e) => setIncTitle(e.target.value)}
-                  placeholder={language === 'ar' ? 'مثال: راتب الشهر القادم، مستحقات مشروع، أرباح أسهم...' : 'e.g. Next Month Salary, Client Invoice #102...'}
+                  placeholder={t.incomeTitlePlaceholder}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-[#F3EFEA] border border-[#E3DDD3] text-xs font-semibold focus:outline-none focus:border-[#28372B]"
                 />
               </div>
@@ -785,7 +760,7 @@ export const AccountsIncomingView: React.FC = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-[#526054] mb-1">
-                    {language === 'ar' ? 'المبلغ المتوقع' : 'Expected Amount'} ({currency}) *
+                    {t.expectedAmountLabel} ({currency}) *
                   </label>
                   <input
                     type="number"
@@ -800,7 +775,7 @@ export const AccountsIncomingView: React.FC = () => {
 
                 <div>
                   <label className="block text-xs font-bold text-[#526054] mb-1">
-                    {language === 'ar' ? 'تاريخ الاستلام المتوقع' : 'Expected Date'} *
+                    {t.expectedDateLabel} *
                   </label>
                   <input
                     type="date"
@@ -815,14 +790,14 @@ export const AccountsIncomingView: React.FC = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-[#526054] mb-1">
-                    {language === 'ar' ? 'الحساب البنكي المستهدف' : 'Destination Account'}
+                    {t.destinationAccountLabel}
                   </label>
                   <select
                     value={incAccountId}
                     onChange={(e) => setIncAccountId(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl bg-[#F3EFEA] border border-[#E3DDD3] text-xs font-semibold focus:outline-none focus:border-[#28372B]"
                   >
-                    <option value="">{language === 'ar' ? '-- بدون تحديد --' : '-- Unlinked --'}</option>
+                    <option value="">{t.unlinkedAccountOption}</option>
                     {accounts.map((acc) => (
                       <option key={acc.id} value={acc.id}>
                         {acc.name} ({formatCurrency(acc.balance)})
@@ -833,49 +808,49 @@ export const AccountsIncomingView: React.FC = () => {
 
                 <div>
                   <label className="block text-xs font-bold text-[#526054] mb-1">
-                    {language === 'ar' ? 'التكرار' : 'Recurrence'}
+                    {t.recurrenceLabel}
                   </label>
                   <select
                     value={incRecurrence}
                     onChange={(e) => setIncRecurrence(e.target.value as IncomingRecurrence)}
                     className="w-full px-3.5 py-2.5 rounded-xl bg-[#F3EFEA] border border-[#E3DDD3] text-xs font-semibold focus:outline-none focus:border-[#28372B]"
                   >
-                    <option value="once">{language === 'ar' ? 'مرة واحدة' : 'One-time'}</option>
-                    <option value="monthly">{language === 'ar' ? 'شهري متكرر' : 'Monthly'}</option>
-                    <option value="weekly">{language === 'ar' ? 'أسبوعي' : 'Weekly'}</option>
-                    <option value="yearly">{language === 'ar' ? 'سنوي' : 'Yearly'}</option>
+                    <option value="once">{t.recurrenceOnce}</option>
+                    <option value="monthly">{t.recurrenceMonthly}</option>
+                    <option value="weekly">{t.recurrenceWeekly}</option>
+                    <option value="yearly">{t.recurrenceYearly}</option>
                   </select>
                 </div>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-[#526054] mb-1">
-                  {language === 'ar' ? 'التصنيف / المصدر' : 'Category / Source'}
+                  {t.incomeCategoryLabel}
                 </label>
                 <select
                   value={incCategory}
                   onChange={(e) => setIncCategory(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-[#F3EFEA] border border-[#E3DDD3] text-xs font-semibold focus:outline-none focus:border-[#28372B]"
                 >
-                  <option value="Salary">{language === 'ar' ? 'راتب شهري (Salary)' : 'Salary'}</option>
-                  <option value="Freelance">{language === 'ar' ? 'عمل حر / مشاريع (Freelance)' : 'Freelance'}</option>
-                  <option value="Investment">{language === 'ar' ? 'استثمار وأرباح (Investment)' : 'Investment'}</option>
-                  <option value="Business">{language === 'ar' ? 'تجارة وأعمال (Business)' : 'Business'}</option>
-                  <option value="Sale">{language === 'ar' ? 'بيع أصول (Sale)' : 'Asset Sale'}</option>
-                  <option value="Gift">{language === 'ar' ? 'هدية / مكافأة (Gift)' : 'Gift / Bonus'}</option>
-                  <option value="Other">{language === 'ar' ? 'مصادر أخرى (Other)' : 'Other'}</option>
+                  <option value="Salary">{t.incomeCategorySalary}</option>
+                  <option value="Freelance">{t.incomeCategoryFreelance}</option>
+                  <option value="Investment">{t.incomeCategoryInvestment}</option>
+                  <option value="Business">{t.incomeCategoryBusiness}</option>
+                  <option value="Sale">{t.incomeCategorySale}</option>
+                  <option value="Gift">{t.incomeCategoryGift}</option>
+                  <option value="Other">{t.incomeCategoryOther}</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-[#526054] mb-1">
-                  {language === 'ar' ? 'ملاحظات إضافية' : 'Notes'}
+                  {t.notes}
                 </label>
                 <textarea
                   rows={2}
                   value={incNotes}
                   onChange={(e) => setIncNotes(e.target.value)}
-                  placeholder={language === 'ar' ? 'تفاصيل العقد أو رقم الفاتورة...' : 'Invoice ref, contract terms...'}
+                  placeholder={t.incomeNotesPlaceholder}
                   className="w-full px-3.5 py-2 rounded-xl bg-[#F3EFEA] border border-[#E3DDD3] text-xs focus:outline-none focus:border-[#28372B]"
                 />
               </div>
@@ -892,7 +867,7 @@ export const AccountsIncomingView: React.FC = () => {
                   type="submit"
                   className="px-5 py-2 bg-emerald-800 hover:bg-emerald-700 text-emerald-50 text-xs font-bold rounded-xl transition shadow-sm"
                 >
-                  {language === 'ar' ? 'حفظ جدول الدخل' : 'Save Income Schedule'}
+                  {t.saveIncomeScheduleBtn}
                 </button>
               </div>
             </form>
@@ -910,7 +885,7 @@ export const AccountsIncomingView: React.FC = () => {
               </div>
               <div>
                 <h3 className="font-serif text-lg font-bold">
-                  {language === 'ar' ? 'تأكيد استلام وإيداع الدخل' : 'Confirm Income Receipt'}
+                  {t.confirmIncomeReceiptTitle}
                 </h3>
                 <p className="text-xs text-[#627064]">
                   {receivingIncome.title} (+{formatCurrency(receivingIncome.amount)})
@@ -920,31 +895,24 @@ export const AccountsIncomingView: React.FC = () => {
 
             <div className="p-4 rounded-2xl bg-[#F3EFEA] border border-[#E3DDD3] space-y-3">
               <div className="text-xs text-[#526054]">
-                {language === 'ar'
-                  ? 'سيتم تحويل حالة هذا الدخل إلى (مستلم وتم الإيداع) وتحديث سجلاتك.'
-                  : 'This income item will be marked as Received & Deposited.'}
+                {t.confirmReceiptDesc}
               </div>
 
               {receivingIncome.accountId ? (
                 <div className="text-xs font-bold text-[#28372B] bg-emerald-100/60 p-2.5 rounded-xl border border-emerald-200/80 flex items-center gap-2">
                   <Building2 className="w-4 h-4 text-emerald-800 shrink-0" />
                   <span>
-                    {language === 'ar'
-                      ? `إضافة المودعات تلقائياً إلى رصيد: ${
-                          accounts.find((a) => a.id === receivingIncome.accountId)?.name
-                        }`
-                      : `Will deposit into: ${
-                          accounts.find((a) => a.id === receivingIncome.accountId)?.name
-                        }`}
+                    {t.depositIntoAccount.replace(
+                      '{name}',
+                      accounts.find((a) => a.id === receivingIncome.accountId)?.name || ''
+                    )}
                   </span>
                 </div>
               ) : (
                 <div className="text-xs text-amber-800 bg-amber-100/60 p-2.5 rounded-xl border border-amber-200/80 flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 text-amber-800 shrink-0" />
                   <span>
-                    {language === 'ar'
-                      ? 'ملاحظة: هذا الدخل غير مرتبط بحساب بنكي محدد.'
-                      : 'Note: This income is not linked to a specific bank account.'}
+                    {t.notLinkedToAccountNote}
                   </span>
                 </div>
               )}
@@ -957,9 +925,7 @@ export const AccountsIncomingView: React.FC = () => {
                   className="w-4 h-4 rounded text-emerald-800 focus:ring-emerald-700"
                 />
                 <span className="text-xs font-semibold text-[#1E2922]">
-                  {language === 'ar'
-                    ? 'إضافة المبلغ أيضاً إلى إجمالي دخل ميزانية الشهر الحالي'
-                    : 'Also add this amount to current monthly budget income'}
+                  {t.addToBudgetIncomeCheckbox}
                 </span>
               </label>
             </div>
@@ -978,7 +944,7 @@ export const AccountsIncomingView: React.FC = () => {
                 className="px-5 py-2 bg-emerald-800 hover:bg-emerald-700 text-emerald-50 text-xs font-bold rounded-xl transition shadow-sm flex items-center gap-1.5"
               >
                 <Check className="w-4 h-4" />
-                <span>{language === 'ar' ? 'تأكيد الإيداع الآن' : 'Confirm Deposit'}</span>
+                <span>{t.confirmDepositBtn}</span>
               </button>
             </div>
           </div>

@@ -47,9 +47,9 @@ export const SavingsVault: React.FC = () => {
     if (isNaN(val) || val <= 0) return;
 
     if (txType === 'deposit') {
-      depositToSavings(val, txNote.trim() || 'Manual Deposit');
+      depositToSavings(val, txNote.trim() || t.depositFunds);
     } else {
-      withdrawFromSavings(val, txNote.trim() || 'Manual Withdrawal');
+      withdrawFromSavings(val, txNote.trim() || t.withdrawFunds);
     }
 
     setTxAmount('');
@@ -161,14 +161,14 @@ export const SavingsVault: React.FC = () => {
                       {goal.deadline && (
                         <p className="text-[10px] font-mono text-[#78857A] flex items-center gap-1 mt-0.5">
                           <Calendar className="w-3 h-3 text-[#28372B]" />
-                          Target: {goal.deadline}
+                          {t.target}: {goal.deadline}
                         </p>
                       )}
                     </div>
                   </div>
                   <button
                     onClick={() => {
-                      if (confirm(`Delete goal "${goal.title}"?`)) deleteSavingsGoal(goal.id);
+                      if (confirm(t.deleteGoalConfirm.replace('{title}', goal.title))) deleteSavingsGoal(goal.id);
                     }}
                     className="text-[#88968A] hover:text-rose-700"
                   >
@@ -195,7 +195,7 @@ export const SavingsVault: React.FC = () => {
                 {/* Quick Add to Goal button */}
                 <button
                   onClick={() => {
-                    const addVal = prompt(`Add amount to "${goal.title}" goal:`, '100');
+                    const addVal = prompt(t.addToGoalPrompt.replace('{title}', goal.title), '100');
                     if (addVal) {
                       const num = parseFloat(addVal);
                       if (!isNaN(num) && num > 0) {
@@ -215,7 +215,7 @@ export const SavingsVault: React.FC = () => {
 
       {/* Savings Transaction History */}
       <div className="bg-[#FAF8F5] rounded-3xl border border-[#E3DDD3] shadow-xs p-6 space-y-4">
-        <h3 className="text-base font-serif font-bold text-[#1E2922]">Savings Vault Activity Log</h3>
+        <h3 className="text-base font-serif font-bold text-[#1E2922]">{t.activityLogTitle}</h3>
         <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
           {savingsTransactions.map((tx) => (
             <div
@@ -256,7 +256,7 @@ export const SavingsVault: React.FC = () => {
           <div className="bg-[#FAF8F5] border border-[#E3DDD3] rounded-3xl w-full max-w-md p-6 space-y-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-[#E8E2D7] pb-3">
               <h3 className="text-lg font-serif font-bold text-[#1E2922] uppercase">
-                {txType === 'deposit' ? 'Deposit Funds to Savings' : 'Withdraw Funds from Savings'}
+                {txType === 'deposit' ? t.txModalDepositTitle : t.txModalWithdrawTitle}
               </h3>
               <button onClick={() => setShowTxModal(false)} className="text-[#627064] hover:text-[#1E2922]">
                 <X className="w-5 h-5" />
@@ -266,7 +266,7 @@ export const SavingsVault: React.FC = () => {
             <form onSubmit={handleTxSubmit} className="space-y-4">
               <div>
                 <label className="text-xs font-mono font-bold text-[#627064] uppercase block mb-1">
-                  Amount ({currency})
+                  {t.amount} ({currency})
                 </label>
                 <input
                   type="number"
@@ -281,11 +281,11 @@ export const SavingsVault: React.FC = () => {
 
               <div>
                 <label className="text-xs font-mono font-bold text-[#627064] uppercase block mb-1">
-                  Note / Reason
+                  {t.noteReasonLabel}
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Monthly transfer or emergency withdrawal"
+                  placeholder={t.txNotePlaceholder}
                   value={txNote}
                   onChange={(e) => setTxNote(e.target.value)}
                   className="w-full bg-[#EAE5DC] border border-[#DCD5C8] rounded-2xl px-4 py-2.5 text-xs text-[#1E2922]"
@@ -298,13 +298,13 @@ export const SavingsVault: React.FC = () => {
                   onClick={() => setShowTxModal(false)}
                   className="px-4 py-2.5 rounded-2xl bg-[#EAE5DC] text-[#354238] text-xs font-mono font-bold"
                 >
-                  Cancel
+                  {t.cancel}
                 </button>
                 <button
                   type="submit"
                   className="px-6 py-2.5 rounded-2xl bg-[#28372B] hover:bg-[#1F2B21] text-amber-100 text-xs font-serif font-bold shadow-md"
                 >
-                  Confirm Transaction
+                  {t.confirmTransactionBtn}
                 </button>
               </div>
             </form>
@@ -319,7 +319,7 @@ export const SavingsVault: React.FC = () => {
             <div className="flex items-center justify-between border-b border-[#E8E2D7] pb-3">
               <h3 className="text-lg font-serif font-bold text-[#1E2922] flex items-center gap-2">
                 <Target className="w-5 h-5 text-[#28372B]" />
-                Create Savings Goal
+                {t.addGoal}
               </h3>
               <button onClick={() => setShowGoalModal(false)} className="text-[#627064] hover:text-[#1E2922]">
                 <X className="w-5 h-5" />
@@ -329,12 +329,12 @@ export const SavingsVault: React.FC = () => {
             <form onSubmit={handleGoalSubmit} className="space-y-4">
               <div>
                 <label className="text-xs font-mono font-bold text-[#627064] uppercase block mb-1">
-                  Goal Title
+                  {t.goalTitleLabel}
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Emergency Fund (6 Months)"
+                  placeholder={t.goalTitlePlaceholder}
                   value={goalTitle}
                   onChange={(e) => setGoalTitle(e.target.value)}
                   className="w-full bg-[#EAE5DC] border border-[#DCD5C8] rounded-2xl px-4 py-2.5 text-xs text-[#1E2922]"
@@ -343,7 +343,7 @@ export const SavingsVault: React.FC = () => {
 
               <div>
                 <label className="text-xs font-mono font-bold text-[#627064] uppercase block mb-1">
-                  Target Amount ({currency})
+                  {t.targetAmountLabel} ({currency})
                 </label>
                 <input
                   type="number"
@@ -357,7 +357,7 @@ export const SavingsVault: React.FC = () => {
 
               <div>
                 <label className="text-xs font-mono font-bold text-[#627064] uppercase block mb-1">
-                  Target Deadline (Optional)
+                  {t.goalDeadlineLabel}
                 </label>
                 <input
                   type="date"
@@ -373,13 +373,13 @@ export const SavingsVault: React.FC = () => {
                   onClick={() => setShowGoalModal(false)}
                   className="px-4 py-2.5 rounded-2xl bg-[#EAE5DC] text-[#354238] text-xs font-mono font-bold"
                 >
-                  Cancel
+                  {t.cancel}
                 </button>
                 <button
                   type="submit"
                   className="px-6 py-2.5 rounded-2xl bg-[#28372B] hover:bg-[#1F2B21] text-amber-100 text-xs font-serif font-bold shadow-md"
                 >
-                  Create Goal
+                  {t.saveGoalBtn}
                 </button>
               </div>
             </form>

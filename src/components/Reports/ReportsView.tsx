@@ -21,9 +21,26 @@ import {
 } from 'recharts';
 
 export const ReportsView: React.FC = () => {
-  const { categories, expenses, activeMonth, currency, t } = useExpense();
+  const { categories, expenses, activeMonth, currency, language, t } = useExpense();
 
   const monthExpenses = expenses.filter((e) => e.date.startsWith(activeMonth));
+
+  const getPaymentMethodLabel = (pm: string) => {
+    switch (pm) {
+      case 'cash':
+        return t.cash;
+      case 'credit':
+        return t.creditCard;
+      case 'debit':
+        return t.debitCard;
+      case 'bank_transfer':
+        return t.bankTransfer;
+      case 'apple_pay':
+        return t.applePay;
+      default:
+        return pm.replace('_', ' ').toUpperCase();
+    }
+  };
 
   // Category Allocated vs Spent Chart Data
   const catComparisonData = categories.map((c) => ({
@@ -35,7 +52,7 @@ export const ReportsView: React.FC = () => {
   // Payment Method Breakdown Chart Data
   const paymentMethodMap: Record<string, number> = {};
   monthExpenses.forEach((exp) => {
-    const pm = exp.paymentMethod.replace('_', ' ').toUpperCase();
+    const pm = getPaymentMethodLabel(exp.paymentMethod);
     paymentMethodMap[pm] = (paymentMethodMap[pm] || 0) + exp.amount;
   });
 
@@ -47,23 +64,26 @@ export const ReportsView: React.FC = () => {
   const COLORS = ['#28372B', '#8C5D4B', '#627064', '#C9A050', '#546A5B'];
 
   // Weekly breakdown
-  const weeklyMap: Record<string, number> = {
-    'Week 1 (1-7)': 0,
-    'Week 2 (8-14)': 0,
-    'Week 3 (15-21)': 0,
-    'Week 4 (22-31)': 0,
+  const weekRanges = ['1-7', '8-14', '15-21', '22-31'];
+  const getWeekLabel = (range: string) => {
+    if (language !== 'ar') return `Week ${range}`;
+    const [from, to] = range.split('-');
+    return `الأسبوع ${from}-${to}`;
   };
+
+  const weeklyMap: Record<string, number> = {};
+  weekRanges.forEach((r) => (weeklyMap[r] = 0));
 
   monthExpenses.forEach((e) => {
     const day = parseInt(e.date.split('-')[2], 10);
-    if (day <= 7) weeklyMap['Week 1 (1-7)'] += e.amount;
-    else if (day <= 14) weeklyMap['Week 2 (8-14)'] += e.amount;
-    else if (day <= 21) weeklyMap['Week 3 (15-21)'] += e.amount;
-    else weeklyMap['Week 4 (22-31)'] += e.amount;
+    if (day <= 7) weeklyMap['1-7'] += e.amount;
+    else if (day <= 14) weeklyMap['8-14'] += e.amount;
+    else if (day <= 21) weeklyMap['15-21'] += e.amount;
+    else weeklyMap['22-31'] += e.amount;
   });
 
   const weeklyData = Object.keys(weeklyMap).map((w) => ({
-    week: w,
+    week: getWeekLabel(w),
     spent: weeklyMap[w],
   }));
 
@@ -114,7 +134,7 @@ export const ReportsView: React.FC = () => {
         <div className="bg-[#FAF8F5] p-6 rounded-3xl border border-[#E3DDD3] shadow-xs space-y-4">
           <h3 className="text-base font-serif font-bold text-[#1E2922] flex items-center gap-2">
             <Calendar className="w-5 h-5 text-[#28372B]" />
-            Weekly Expense Distribution
+            {t.weeklyExpenseTitle}
           </h3>
 
           <div className="h-60 w-full">
@@ -124,7 +144,7 @@ export const ReportsView: React.FC = () => {
                 <YAxis stroke="#627064" fontSize={11} tickLine={false} />
                 <Tooltip
                   contentStyle={{ backgroundColor: '#FAF8F5', borderColor: '#E3DDD3', borderRadius: '16px', fontSize: '12px', fontFamily: 'serif' }}
-                  formatter={(val: any) => [formatCurrency(Number(val), currency), 'Spent']}
+                  formatter={(val: any) => [formatCurrency(Number(val), currency), t.spent]}
                 />
                 <Bar dataKey="spent" fill="#28372B" radius={[8, 8, 0, 0]} />
               </BarChart>
@@ -136,7 +156,7 @@ export const ReportsView: React.FC = () => {
         <div className="bg-[#FAF8F5] p-6 rounded-3xl border border-[#E3DDD3] shadow-xs space-y-4">
           <h3 className="text-base font-serif font-bold text-[#1E2922] flex items-center gap-2">
             <CreditCard className="w-5 h-5 text-[#28372B]" />
-            Payment Channel Usage
+            {t.paymentChannelUsageTitle}
           </h3>
 
           <div className="h-60 w-full flex items-center justify-center">
@@ -162,7 +182,7 @@ export const ReportsView: React.FC = () => {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="text-center font-mono text-xs text-[#78857A] italic">No transactions recorded</div>
+              <div className="text-center font-mono text-xs text-[#78857A] italic">{t.noTransactionsMsg}</div>
             )}
           </div>
         </div>

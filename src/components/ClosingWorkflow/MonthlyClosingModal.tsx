@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useExpense } from '../../context/ExpenseContext';
 import { formatCurrency } from '../../data/currencies';
+import { translateDataName } from '../../data/categoryTranslations';
 import { ClosingCarryOption } from '../../types';
 import {
   Lock,
@@ -21,6 +22,7 @@ export const MonthlyClosingModal: React.FC<MonthlyClosingModalProps> = ({ isOpen
     categories,
     performMonthlyClosing,
     currency,
+    language,
     t,
   } = useExpense();
 
@@ -89,7 +91,7 @@ export const MonthlyClosingModal: React.FC<MonthlyClosingModalProps> = ({ isOpen
 
             {/* Category Performance Breakdown table */}
             <div className="space-y-2">
-              <div className="text-xs font-mono font-bold text-[#627064] uppercase">Category Budget Performance</div>
+              <div className="text-xs font-mono font-bold text-[#627064] uppercase">{t.closingCategoryPerformanceTitle}</div>
               <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
                 {categories.map((cat) => {
                   const diff = cat.allocated - cat.spent;
@@ -98,10 +100,10 @@ export const MonthlyClosingModal: React.FC<MonthlyClosingModalProps> = ({ isOpen
                       key={cat.id}
                       className="flex items-center justify-between p-3 rounded-2xl bg-[#EAE5DC]/60 text-xs border border-[#DCD5C8]"
                     >
-                      <span className="font-semibold text-[#1E2922]">{cat.name}</span>
+                      <span className="font-semibold text-[#1E2922]">{translateDataName(cat.name, language)}</span>
                       <div className="flex items-center gap-3 font-mono">
                         <span className="text-[#627064]">
-                          Spent: {formatCurrency(cat.spent, currency)} / {formatCurrency(cat.allocated, currency)}
+                          {t.spent}: {formatCurrency(cat.spent, currency)} / {formatCurrency(cat.allocated, currency)}
                         </span>
                         <span className={`font-bold ${diff >= 0 ? 'text-[#28372B]' : 'text-rose-700'}`}>
                           {diff >= 0 ? `+${formatCurrency(diff, currency)}` : formatCurrency(diff, currency)}
@@ -118,7 +120,7 @@ export const MonthlyClosingModal: React.FC<MonthlyClosingModalProps> = ({ isOpen
                 onClick={() => setStep(2)}
                 className="px-6 py-2.5 rounded-2xl bg-[#28372B] hover:bg-[#1F2B21] text-amber-100 font-serif font-bold text-xs flex items-center gap-2 shadow-md"
               >
-                <span>Proceed to Rollover Selection</span>
+                <span>{t.proceedToRolloverBtn}</span>
                 <ArrowRight className="w-4 h-4 rtl:rotate-180 text-amber-200" />
               </button>
             </div>
@@ -130,10 +132,10 @@ export const MonthlyClosingModal: React.FC<MonthlyClosingModalProps> = ({ isOpen
           <div className="space-y-5">
             <div className="p-4 rounded-2xl bg-[#EAE5DC] border border-[#DCD5C8] text-xs text-[#1E2922]">
               <div className="font-serif font-bold text-base mb-1">
-                Unspent Surplus: <span className="text-[#28372B]">{formatCurrency(remainingUnspent, currency)}</span>
+                {t.unspentSurplusLabel} <span className="text-[#28372B]">{formatCurrency(remainingUnspent, currency)}</span>
               </div>
               <p className="text-[#627064] font-mono text-[11px] leading-relaxed">
-                Choose how you want to handle remaining funds before finalizing this month and launching the next cycle.
+                {t.rolloverChoiceHelp}
               </p>
             </div>
 
@@ -149,8 +151,8 @@ export const MonthlyClosingModal: React.FC<MonthlyClosingModalProps> = ({ isOpen
               >
                 <PiggyBank className="w-5 h-5 shrink-0" />
                 <div>
-                  <div className="font-serif font-bold text-sm">Deposit All Surplus to Savings Vault</div>
-                  <div className="text-xs font-mono opacity-80 mt-0.5">Transfer 100% of unspent funds to Savings</div>
+                  <div className="font-serif font-bold text-sm">{t.depositSurplusOption}</div>
+                  <div className="text-xs font-mono opacity-80 mt-0.5">{t.depositSurplusDesc}</div>
                 </div>
               </button>
 
@@ -164,8 +166,8 @@ export const MonthlyClosingModal: React.FC<MonthlyClosingModalProps> = ({ isOpen
               >
                 <ArrowRight className="w-5 h-5 shrink-0" />
                 <div>
-                  <div className="font-serif font-bold text-sm">Roll Over to Next Month Base Budget</div>
-                  <div className="text-xs font-mono opacity-80 mt-0.5">Add unspent funds to next cycle&apos;s starting capacity</div>
+                  <div className="font-serif font-bold text-sm">{t.rolloverNextMonthOption}</div>
+                  <div className="text-xs font-mono opacity-80 mt-0.5">{t.rolloverNextMonthDesc}</div>
                 </div>
               </button>
 
@@ -176,13 +178,13 @@ export const MonthlyClosingModal: React.FC<MonthlyClosingModalProps> = ({ isOpen
                 onClick={() => setStep(1)}
                 className="px-4 py-2.5 rounded-2xl bg-[#EAE5DC] text-[#354238] font-mono font-bold text-xs"
               >
-                Back
+                {t.backBtn}
               </button>
               <button
                 onClick={handleFinalClose}
                 className="px-6 py-2.5 rounded-2xl bg-[#28372B] hover:bg-[#1F2B21] text-amber-100 font-serif font-bold text-xs shadow-md"
               >
-                Finalize & Close Month
+                {t.finalizeCloseMonthBtn}
               </button>
             </div>
           </div>

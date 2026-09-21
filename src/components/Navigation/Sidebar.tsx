@@ -112,8 +112,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
             <span className="-mt-1 text-xs">R</span>
           </div>
           <div>
-            <h2 className="font-serif text-base font-bold text-amber-100 tracking-wide">FINANCIAL</h2>
-            <p className="text-[9px] font-mono tracking-widest text-amber-200/70 uppercase">RESET PLANNER</p>
+            <h2 className="font-serif text-base font-bold text-amber-100 tracking-wide">{t.brandTitle}</h2>
+            <p className="text-[9px] font-mono tracking-widest text-amber-200/70 uppercase">{t.brandSubtitle}</p>
           </div>
         </div>
 
@@ -186,7 +186,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
 
         <div className="text-right text-[10px] font-mono text-[#626F64]">
           <div>PLANNER v2.4</div>
-          <div className="text-emerald-700 font-bold">● ACTIVE</div>
+          <div className="text-emerald-700 font-bold">{t.systemStatusActive}</div>
         </div>
       </div>
     </aside>
