@@ -255,13 +255,10 @@ export interface TranslationDictionary {
   selectCurrencyLabel: string;
   saveSettingsBtn: string;
 
-  // Design Themes
+  // Appearance (dark / light only)
   themeOptions: string;
-  themeObsidian: string;
-  themeEmeraldLight: string;
-  themeSapphire: string;
-  themeAmber: string;
-  selectTheme: string;
+  themeLight: string;
+  themeDark: string;
 }
 
 export const translations: Record<Language, TranslationDictionary> = {
@@ -508,12 +505,9 @@ export const translations: Record<Language, TranslationDictionary> = {
     selectCurrencyLabel: 'Default Currency',
     saveSettingsBtn: 'Save Settings',
 
-    themeOptions: 'Design Themes & Styles',
-    themeObsidian: 'Obsidian Dark (Modern Slate)',
-    themeEmeraldLight: 'Emerald Mint (Clean Light)',
-    themeSapphire: 'Sapphire Night (Royal Navy)',
-    themeAmber: 'Desert Sunset (Warm Amber)',
-    selectTheme: 'Select Visual Theme',
+    themeOptions: 'Appearance',
+    themeLight: 'Light',
+    themeDark: 'Dark',
   },
   ar: {
     appName: 'متبع المصاريف',
@@ -758,11 +752,8 @@ export const translations: Record<Language, TranslationDictionary> = {
     selectCurrencyLabel: 'العملة الافتراضية',
     saveSettingsBtn: 'حفظ الإعدادات',
 
-    themeOptions: 'خيارات التصميم والمظهر',
-    themeObsidian: 'الماس الأسود (داكن مدرع)',
-    themeEmeraldLight: 'الزمرد النعناعي (فاتح أنيق)',
-    themeSapphire: 'الأزرق الياقوتي (ليلي ملكي)',
-    themeAmber: 'الغروب الدافئ (ذهبي دافئ)',
-    selectTheme: 'اختر مظهر الواجهة',
+    themeOptions: 'المظهر',
+    themeLight: 'فاتح',
+    themeDark: 'داكن',
   },
 };

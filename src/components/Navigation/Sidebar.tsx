@@ -13,7 +13,6 @@ import {
   ChevronRight,
   Sun,
   Moon,
-  Palette,
   Landmark
 } from 'lucide-react';
 
@@ -32,10 +31,9 @@ export type TabType =
 interface SidebarProps {
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
-  onOpenThemeModal?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onOpenThemeModal }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   const { t, theme, setTheme } = useExpense();
 
   const menuItems: { id: TabType; label: string; icon: React.FC<any>; badge?: string; desc: string }[] = [
@@ -179,22 +177,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onOpe
       {/* Footer System Control Buttons */}
       <div className="pt-4 border-t border-[#D0C7B8] flex items-center justify-between px-1">
         <button
-          onClick={() => setTheme(theme === 'emerald_light' ? 'obsidian' : 'emerald_light')}
+          onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
           className="w-9 h-9 rounded-2xl bg-[#28372B] text-amber-200 flex items-center justify-center hover:bg-[#1F2B21] transition shadow-sm"
-          title="Toggle Dark / Light Mode"
+          title={theme === 'light' ? t.themeDark : t.themeLight}
         >
-          {theme === 'emerald_light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+          {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
         </button>
-
-        {onOpenThemeModal && (
-          <button
-            onClick={onOpenThemeModal}
-            className="w-9 h-9 rounded-2xl bg-[#DDD7CB] text-[#28372B] flex items-center justify-center hover:bg-[#D0C7B8] transition"
-            title={t.themeOptions}
-          >
-            <Palette className="w-4 h-4" />
-          </button>
-        )}
 
         <div className="text-right text-[10px] font-mono text-[#626F64]">
           <div>PLANNER v2.4</div>

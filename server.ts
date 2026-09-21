@@ -20,6 +20,10 @@ function getGeminiClient() {
   return new GoogleGenAI({ apiKey });
 }
 
+// Model is env-overridable: Google retires flash generations regularly
+// (2.5-flash now 404s for new keys), so GEMINI_MODEL can pin a working one.
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.6-flash";
+
 // Health check endpoint
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
@@ -97,7 +101,7 @@ Return ONLY a valid JSON object matching this TypeScript format (no markdown bac
 }`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: GEMINI_MODEL,
       contents: prompt,
       config: {
         responseMimeType: "application/json"
@@ -165,7 +169,7 @@ Return ONLY JSON format:
 }`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: GEMINI_MODEL,
       contents: prompt,
       config: {
         responseMimeType: "application/json"
@@ -177,6 +181,48 @@ Return ONLY JSON format:
   } catch (error: any) {
     console.error("Error in AI categorize:", error);
     return res.status(500).json({ error: "Failed to auto-categorize expense" });
+  }
+});
+
+// AI Audio Transcription endpoint (Phase 2 fallback).
+// Records via MediaRecorder in the browser, transcribes here with Gemini.
+// Used when the browser's built-in cloud speech service is unreachable.
+app.post("/api/ai/transcribe", async (req, res) => {
+  try {
+    const { audioBase64, mimeType } = req.body;
+
+    const ai = getGeminiClient();
+    if (!ai) {
+      return res.status(503).json({
+        error: "Audio transcription needs a GEMINI_API_KEY. Add it to frontend/.env and restart the dev server. Typed input works without it.",
+      });
+    }
+
+    if (!audioBase64 || typeof audioBase64 !== "string") {
+      return res.status(400).json({ error: "Missing audio data." });
+    }
+    if (audioBase64.length > 8_000_000) {
+      return res.status(413).json({ error: "Recording too long. Keep it under ~90 seconds." });
+    }
+    const mime =
+      typeof mimeType === "string" && mimeType.startsWith("audio/") ? mimeType : "audio/webm";
+
+    const response = await ai.models.generateContent({
+      model: GEMINI_MODEL,
+      contents: [
+        { inlineData: { mimeType: mime, data: audioBase64 } },
+        { text: "Transcribe this expense voice note accurately. Return ONLY the spoken words as plain text, with no commentary or extra formatting." },
+      ],
+    });
+
+    const transcript = (response.text || "").trim();
+    if (!transcript) {
+      return res.status(502).json({ error: "Transcription came back empty. Try recording again, closer to the mic." });
+    }
+    return res.json({ transcript, source: "gemini" });
+  } catch (error: any) {
+    console.error("Error in AI transcribe:", error);
+    return res.status(500).json({ error: "Failed to transcribe audio", details: error.message });
   }
 });
 
@@ -197,6 +243,7 @@ async function startServer() {
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://0.0.0.0:${PORT}`);
+    console.log(`Open the app at http://localhost:${PORT} (voice/mic need localhost or HTTPS, not a LAN IP over plain HTTP)`);
   });
 }
 

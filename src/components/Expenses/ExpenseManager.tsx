@@ -3,6 +3,7 @@ import { useExpense } from '../../context/ExpenseContext';
 import { formatCurrency } from '../../data/currencies';
 import { DynamicIcon } from '../Common/DynamicIcon';
 import { Expense, PaymentMethod } from '../../types';
+import { VoiceExpenseModal } from './VoiceExpenseModal';
 import {
   Receipt,
   Plus,
@@ -15,7 +16,8 @@ import {
   Smartphone,
   Building2,
   X,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Mic
 } from 'lucide-react';
 
 const PAYMENT_METHODS: { id: PaymentMethod; label: string; icon: React.FC<any> }[] = [
@@ -36,7 +38,9 @@ export const ExpenseManager: React.FC = () => {
     currency,
     activeMonth,
     t,
+    canEditBudget,
   } = useExpense();
+  const readOnly = !canEditBudget;
 
   // Search & Filter State
   const [searchTerm, setSearchTerm] = useState('');
@@ -45,6 +49,7 @@ export const ExpenseManager: React.FC = () => {
 
   // Modal State
   const [showModal, setShowModal] = useState(false);
+  const [showVoiceModal, setShowVoiceModal] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
 
   // Form Fields
@@ -154,6 +159,10 @@ export const ExpenseManager: React.FC = () => {
   };
 
   const activeCategoryObj = categories.find((c) => c.id === categoryId);
+  const activeRemaining = activeCategoryObj ? activeCategoryObj.allocated - activeCategoryObj.spent : 0;
+  const parsedPreview = parseFloat(amount);
+  const willOverspend =
+    !isNaN(parsedPreview) && parsedPreview > 0 && activeCategoryObj && parsedPreview > activeRemaining;
 
   const exportToCSV = () => {
     const headers = ['Date', 'Title', 'Category', 'Amount', 'Payment Method', 'Notes'];
@@ -203,8 +212,19 @@ export const ExpenseManager: React.FC = () => {
             <span>{t.exportCsv}</span>
           </button>
           <button
+            onClick={() => setShowVoiceModal(true)}
+            disabled={readOnly}
+            title={readOnly ? 'View-only access' : undefined}
+            className="px-4 py-2.5 rounded-2xl bg-[#28372B] hover:bg-[#1F2B21] text-amber-200 border border-[#1F2B21] text-xs font-serif font-bold flex items-center gap-2 transition shadow-sm disabled:opacity-50"
+          >
+            <Mic className="w-4 h-4" />
+            <span>Voice Expense</span>
+          </button>
+          <button
             onClick={openAddModal}
-            className="px-5 py-2.5 rounded-2xl bg-amber-200 hover:bg-amber-100 text-[#1E2B21] font-serif font-bold text-xs flex items-center gap-2 shadow-sm transition"
+            disabled={readOnly}
+            title={readOnly ? 'View-only access' : undefined}
+            className="px-5 py-2.5 rounded-2xl bg-amber-200 hover:bg-amber-100 text-[#1E2B21] font-serif font-bold text-xs flex items-center gap-2 shadow-sm transition disabled:opacity-50"
           >
             <Plus className="w-4 h-4 text-[#1E2B21]" />
             <span>{t.newExpenseBtn}</span>
@@ -283,7 +303,19 @@ export const ExpenseManager: React.FC = () => {
                 return (
                   <tr key={exp.id} className="hover:bg-[#EAE5DC]/50 transition">
                     <td className="py-4 px-5">
-                      <div className="font-serif font-bold text-[#1E2922] text-sm">{exp.title}</div>
+                      <div className="font-serif font-bold text-[#1E2922] text-sm flex items-center gap-2">
+                        <span>{exp.title}</span>
+                        <span
+                          className={`text-[9px] px-1.5 py-0.5 rounded-full font-mono font-bold uppercase border ${
+                            exp.source === 'voice'
+                              ? 'bg-amber-200/60 text-[#5b4a1e] border-amber-300'
+                              : 'bg-[#EAE5DC] text-[#627064] border-[#DCD5C8]'
+                          }`}
+                          title={exp.source === 'voice' ? 'Created via voice entry' : 'Created manually'}
+                        >
+                          {exp.source === 'voice' ? '🎙 voice' : 'manual'}
+                        </span>
+                      </div>
                       {exp.notes && (
                         <div className="text-[11px] text-[#627064] italic mt-0.5 truncate max-w-xs font-mono">
                           {exp.notes}
@@ -322,8 +354,9 @@ export const ExpenseManager: React.FC = () => {
                     <td className="py-4 px-5 text-right rtl:text-left space-x-1">
                       <button
                         onClick={() => openEditModal(exp)}
-                        className="p-1.5 rounded-xl bg-[#EAE5DC] hover:bg-[#E2DDD3] text-[#28372B] transition"
-                        title="Edit Expense"
+                        disabled={readOnly}
+                        className="p-1.5 rounded-xl bg-[#EAE5DC] hover:bg-[#E2DDD3] text-[#28372B] transition disabled:opacity-50"
+                        title={readOnly ? 'View-only access' : 'Edit Expense'}
                       >
                         <Edit className="w-3.5 h-3.5" />
                       </button>
@@ -331,8 +364,9 @@ export const ExpenseManager: React.FC = () => {
                         onClick={() => {
                           if (confirm(`Delete expense "${exp.title}"?`)) deleteExpense(exp.id);
                         }}
-                        className="p-1.5 rounded-xl bg-[#EAE5DC] hover:bg-[#E2DDD3] text-rose-700 transition"
-                        title="Delete Expense"
+                        disabled={readOnly}
+                        className="p-1.5 rounded-xl bg-[#EAE5DC] hover:bg-[#E2DDD3] text-rose-700 transition disabled:opacity-50"
+                        title={readOnly ? 'View-only access' : 'Delete Expense'}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -441,10 +475,16 @@ export const ExpenseManager: React.FC = () => {
                   >
                     {categories.map((c) => (
                       <option key={c.id} value={c.id}>
-                        {c.name}
+                        {c.name} — {formatCurrency(c.allocated - c.spent, currency)} left
                       </option>
                     ))}
                   </select>
+                  {activeCategoryObj && (
+                    <p className="text-[11px] font-mono text-[#78857A] mt-1">
+                      {formatCurrency(activeCategoryObj.spent, currency)} spent of{' '}
+                      {formatCurrency(activeCategoryObj.allocated, currency)}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -508,6 +548,15 @@ export const ExpenseManager: React.FC = () => {
                 />
               </div>
 
+              {/* Overspend warning (Phase 1: deduction preview) */}
+              {willOverspend && activeCategoryObj && (
+                <div className="text-xs font-mono text-amber-900 bg-amber-100 border border-amber-300 rounded-2xl px-3 py-2">
+                  This will put {activeCategoryObj.name} over budget by{' '}
+                  {formatCurrency(parsedPreview - activeRemaining, currency)}. It will still save, flagged as
+                  overspent.
+                </div>
+              )}
+
               {/* Modal Actions */}
               <div className="flex justify-end gap-3 pt-3 border-t border-[#E8E2D7]">
                 <button
@@ -529,6 +578,8 @@ export const ExpenseManager: React.FC = () => {
           </div>
         </div>
       )}
+
+      <VoiceExpenseModal isOpen={showVoiceModal} onClose={() => setShowVoiceModal(false)} />
 
     </div>
   );

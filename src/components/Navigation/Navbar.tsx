@@ -8,22 +8,20 @@ import {
   Sparkles,
   Lock,
   Globe,
-  Palette,
+  Sun,
+  Moon,
   Calendar as CalendarIcon,
   ChevronDown
 } from 'lucide-react';
-import { ThemeSelectorModal } from '../Theme/ThemeSelectorModal';
 
 interface NavbarProps {
   onOpenProfile: () => void;
   onOpenClosingModal: () => void;
-  onOpenThemeModal?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   onOpenProfile,
   onOpenClosingModal,
-  onOpenThemeModal,
 }) => {
   const {
     user,
@@ -31,12 +29,13 @@ export const Navbar: React.FC<NavbarProps> = ({
     setCurrency,
     language,
     setLanguage,
+    theme,
+    setTheme,
     t,
   } = useExpense();
 
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
-  const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
 
   // Dynamic Date string formatting
   const today = new Date();
@@ -69,17 +68,18 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>{formattedDate} • {dayName}</span>
           </div>
 
-          {/* Theme Selector Palette Button */}
+          {/* Dark / Light Mode Toggle */}
           <button
-            onClick={() => {
-              if (onOpenThemeModal) onOpenThemeModal();
-              else setIsThemeModalOpen(true);
-            }}
+            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#28372B] hover:bg-[#1F2B21] text-xs font-semibold text-amber-100 transition shadow-sm"
             title={t.themeOptions}
           >
-            <Palette className="w-3.5 h-3.5 text-amber-300" />
-            <span className="hidden sm:inline font-bold text-amber-200">{t.themeOptions}</span>
+            {theme === 'light'
+              ? <Moon className="w-3.5 h-3.5 text-amber-300" />
+              : <Sun className="w-3.5 h-3.5 text-amber-300" />}
+            <span className="hidden sm:inline font-bold text-amber-200">
+              {theme === 'light' ? t.themeDark : t.themeLight}
+            </span>
           </button>
 
           {/* Language Switcher Dropdown */}
@@ -184,10 +184,6 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
 
-      <ThemeSelectorModal
-        isOpen={isThemeModalOpen}
-        onClose={() => setIsThemeModalOpen(false)}
-      />
     </header>
   );
 };

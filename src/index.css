@@ -15,8 +15,8 @@
   }
 }
 
-/* Theme Design Tokens */
-:root, html[data-theme="emerald_light"] {
+/* Theme Design Tokens: light (default) + dark */
+:root, html[data-theme="light"] {
   --color-bg-app: #F3EFEA;
   --color-bg-surface: #FAF8F5;
   --color-bg-secondary: #EAE5DC;
@@ -33,7 +33,7 @@
   --color-accent-border: #1F2B21;
 }
 
-html[data-theme="obsidian"] {
+html[data-theme="dark"] {
   --color-bg-app: #090F0C;
   --color-bg-surface: #111C16;
   --color-bg-secondary: #192A20;
@@ -48,40 +48,6 @@ html[data-theme="obsidian"] {
   --color-accent-text: #ECFDF5;
   --color-accent-subtext: #A7F3D0;
   --color-accent-border: #10B981;
-}
-
-html[data-theme="sapphire"] {
-  --color-bg-app: #060B18;
-  --color-bg-surface: #0E172A;
-  --color-bg-secondary: #1E293B;
-  --color-bg-hover: #334155;
-  --color-border-main: #1E3A8A;
-  --color-border-sub: #2563EB;
-  --color-text-main: #F8FAFC;
-  --color-text-muted: #93C5FD;
-  --color-text-sub: #60A5FA;
-  --color-accent-bg: #1E3A8A;
-  --color-accent-hover: #1D4ED8;
-  --color-accent-text: #EFF6FF;
-  --color-accent-subtext: #BFDBFE;
-  --color-accent-border: #3B82F6;
-}
-
-html[data-theme="amber"] {
-  --color-bg-app: #120E0C;
-  --color-bg-surface: #1C1714;
-  --color-bg-secondary: #2B231E;
-  --color-bg-hover: #3D322B;
-  --color-border-main: #4A3B32;
-  --color-border-sub: #614D41;
-  --color-text-main: #FFFBEB;
-  --color-text-muted: #FDE047;
-  --color-text-sub: #FACC15;
-  --color-accent-bg: #78350F;
-  --color-accent-hover: #92400E;
-  --color-accent-text: #FFFBEB;
-  --color-accent-subtext: #FDE68A;
-  --color-accent-border: #D97706;
 }
 
 body {

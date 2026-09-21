@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useExpense } from '../../context/ExpenseContext';
 import { formatCurrency } from '../../data/currencies';
 import {
@@ -22,6 +22,8 @@ import {
   Area,
   Tooltip
 } from 'recharts';
+import { BudgetOverview } from './BudgetOverview';
+import { PartnerManagement } from '../Partners/PartnerManagement';
 
 interface DashboardViewProps {
   onNavigateToExpenses: () => void;
@@ -44,6 +46,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     savingsGoals,
     t,
     language,
+    myBudgetRole,
   } = useExpense();
 
   const [netWorthTimeframe, setNetWorthTimeframe] = useState<'1W' | '1M' | '3M' | '6M' | '1Y' | 'ALL'>('1M');
@@ -53,16 +56,25 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const totalSpent = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
   const totalNetWorth = totalIncome + savingsBalance - totalSpent;
 
-  // Chart data curve
-  const netWorthTrendData = [
-    { day: 'Day 1', val: totalNetWorth * 0.88 },
-    { day: 'Day 5', val: totalNetWorth * 0.90 },
-    { day: 'Day 10', val: totalNetWorth * 0.92 },
-    { day: 'Day 15', val: totalNetWorth * 0.96 },
-    { day: 'Day 20', val: totalNetWorth * 0.95 },
-    { day: 'Day 25', val: totalNetWorth * 0.99 },
-    { day: 'Day 30', val: totalNetWorth },
-  ];
+  // Net-worth trend derived from real daily spending in the active month
+  const netWorthTrendData = useMemo(() => {
+    const [yearStr, monthStr] = activeMonth.split('-');
+    const year = parseInt(yearStr, 10);
+    const month = parseInt(monthStr, 10);
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const byDay: Record<number, number> = {};
+    for (const e of monthExpenses) {
+      const day = parseInt(e.date.slice(8, 10), 10);
+      if (!isNaN(day)) byDay[day] = (byDay[day] || 0) + e.amount;
+    }
+    let cumulative = 0;
+    const points: { day: string; val: number }[] = [];
+    for (let d = 1; d <= daysInMonth; d++) {
+      cumulative += byDay[d] || 0;
+      points.push({ day: `${monthStr}/${String(d).padStart(2, '0')}`, val: totalIncome + savingsBalance - cumulative });
+    }
+    return points;
+  }, [monthExpenses, totalIncome, savingsBalance, activeMonth]);
 
   // Calendar setup for mini widget
   const currentDate = new Date();
@@ -155,7 +167,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             <div className="text-xs text-emerald-300 font-mono font-bold mt-1 flex items-center gap-1">
-              <span>↑ 8.5% vs last month</span>
+              <span>This month · live from your budget</span>
             </div>
           </div>
 
@@ -220,7 +232,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="font-serif text-xl font-extrabold text-[#1E2922] mt-1">
                   {formatCurrency(totalIncome, currency)}
                 </div>
-                <div className="text-[10px] font-mono font-bold text-emerald-700 mt-1">↑ 12% vs last month</div>
+                <div className="text-[10px] font-mono font-bold text-emerald-700 mt-1">This month</div>
               </div>
               <div className="w-8 h-8 rounded-full bg-[#E3DDD3] text-[#28372B] flex items-center justify-center shrink-0">
                 <Wallet className="w-4 h-4" />
@@ -234,7 +246,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="font-serif text-xl font-extrabold text-[#1E2922] mt-1">
                   {formatCurrency(totalSpent, currency)}
                 </div>
-                <div className="text-[10px] font-mono font-bold text-rose-700 mt-1">↑ 5% vs last month</div>
+                <div className="text-[10px] font-mono font-bold text-rose-700 mt-1">This month</div>
               </div>
               <div className="w-8 h-8 rounded-full bg-[#EAE2D8] text-[#8C5D4B] flex items-center justify-center shrink-0">
                 <TrendingDown className="w-4 h-4" />
@@ -248,7 +260,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="font-serif text-xl font-extrabold text-[#1E2922] mt-1">
                   {formatCurrency(savingsBalance, currency)}
                 </div>
-                <div className="text-[10px] font-mono font-bold text-emerald-700 mt-1">↑ 20% vs last month</div>
+                <div className="text-[10px] font-mono font-bold text-emerald-700 mt-1">Total saved</div>
               </div>
               <div className="w-8 h-8 rounded-full bg-[#E3DDD3] text-[#28372B] flex items-center justify-center shrink-0">
                 <PiggyBank className="w-4 h-4" />
@@ -262,7 +274,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="font-serif text-xl font-extrabold text-[#1E2922] mt-1">
                   {formatCurrency(totalIncome - totalSpent, currency)}
                 </div>
-                <div className="text-[10px] font-mono font-bold text-emerald-700 mt-1">↑ 15% vs last month</div>
+                <div className="text-[10px] font-mono font-bold text-emerald-700 mt-1">Income minus spent</div>
               </div>
               <div className="w-8 h-8 rounded-full bg-[#EAE2D8] text-[#8C5D4B] flex items-center justify-center shrink-0">
                 <TrendingUp className="w-4 h-4" />
@@ -273,6 +285,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
       </div>
+
+      {/* Phase 1: budget deduction + overspend meters */}
+      <BudgetOverview />
+
+      {myBudgetRole === 'viewer' && (
+        <div className="bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl px-4 py-3 text-xs">
+          <span className="font-bold">View-only access.</span> You were invited as a viewer — you can see this
+          shared budget but cannot add or edit expenses.
+        </div>
+      )}
+
+      {/* Budget partners: invite by email, change roles, remove */}
+      <PartnerManagement />
 
       {/* Bottom Row: Quote Tile, Top Priorities, and Mini Calendar Widget */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">

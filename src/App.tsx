@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ExpenseProvider } from './context/ExpenseContext';
+import { ExpenseProvider, useExpense } from './context/ExpenseContext';
 import { Navbar } from './components/Navigation/Navbar';
 import { Sidebar, TabType } from './components/Navigation/Sidebar';
 import { DashboardView } from './components/Dashboard/DashboardView';
@@ -12,14 +12,42 @@ import { SavingsVault } from './components/Savings/SavingsVault';
 import { ReportsView } from './components/Reports/ReportsView';
 import { SmartInsightsView } from './components/SmartInsights/SmartInsightsView';
 import { UserProfileModal } from './components/Auth/UserProfileModal';
-import { ThemeSelectorModal } from './components/Theme/ThemeSelectorModal';
+import { LoginView } from './components/Auth/LoginView';
+import { InviteAcceptView } from './components/Partners/InviteAcceptView';
 import { AccountsIncomingView } from './components/Accounts/AccountsIncomingView';
 
 function AppContent() {
-  const [activeTab, setActiveTab] = useState<TabType>('dashboard');
+  const { isAuthenticated, isLoading } = useExpense();  const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isClosingOpen, setIsClosingOpen] = useState(false);
-  const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
+
+  // Email deep link: /invite/:token or /?invite=:token (public, works logged out).
+  const inviteToken =
+    typeof window !== 'undefined'
+      ? window.location.pathname.match(/\/invite\/([^/]+)/)?.[1] ||
+        new URLSearchParams(window.location.search).get('invite')
+      : null;
+
+  if (inviteToken) {
+    return <InviteAcceptView token={decodeURIComponent(inviteToken)} />;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#F3EFEA] flex items-center justify-center">
+        <div className="text-center space-y-3">
+          <div className="w-12 h-12 rounded-2xl bg-[#28372B] mx-auto flex items-center justify-center animate-pulse">
+            <span className="text-amber-200 font-bold">₪</span>
+          </div>
+          <p className="text-xs font-mono text-[#627064] uppercase tracking-widest">Loading your budget…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <LoginView />;
+  }
 
   return (
     <div className="min-h-screen bg-[#F3EFEA] text-[#1E2922] flex flex-col font-sans-editorial selection:bg-[#28372B] selection:text-amber-100">
@@ -28,7 +56,6 @@ function AppContent() {
       <Navbar
         onOpenProfile={() => setIsProfileOpen(true)}
         onOpenClosingModal={() => setIsClosingOpen(true)}
-        onOpenThemeModal={() => setIsThemeModalOpen(true)}
       />
 
       {/* Main Container Layout */}
@@ -38,7 +65,6 @@ function AppContent() {
         <Sidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          onOpenThemeModal={() => setIsThemeModalOpen(true)}
         />
 
         {/* Dynamic Content View Area */}
@@ -105,7 +131,6 @@ function AppContent() {
       {/* Global Modals */}
       <UserProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
       <MonthlyClosingModal isOpen={isClosingOpen} onClose={() => setIsClosingOpen(false)} />
-      <ThemeSelectorModal isOpen={isThemeModalOpen} onClose={() => setIsThemeModalOpen(false)} />
 
     </div>
   );
