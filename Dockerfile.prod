@@ -1,0 +1,34 @@
+# Production image for the frontend.
+# Use ONLY if you deploy the frontend as a Docker service on Render
+# (Dockerfile Path: frontend/Dockerfile.prod).
+# The recommended path is the render.yaml native Node service, which needs
+# no Dockerfile. The dev-only ./Dockerfile stays untouched for local compose.
+FROM node:22-slim
+
+WORKDIR /app
+
+# Install all deps (devDeps needed for the Vite build).
+# NOTE: do NOT set NODE_ENV=production before this step — npm would skip devDependencies.
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY . .
+
+# Vite bakes these into the bundle at BUILD time. Docker builds cannot see
+# Render env vars, so they ship as build args with production defaults.
+# Override at build time with --build-arg if your URLs differ.
+ARG VITE_API_URL=https://expense-tracker-laravel.onrender.com
+ARG VITE_SUPABASE_URL=https://lbpexfjyiolgahlaxidh.supabase.co
+ARG VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_aGkB2DAO-iIgmMzMxoGuQA_cmq97Kri
+ENV VITE_API_URL=$VITE_API_URL \
+    VITE_SUPABASE_URL=$VITE_SUPABASE_URL \
+    VITE_SUPABASE_PUBLISHABLE_KEY=$VITE_SUPABASE_PUBLISHABLE_KEY \
+    NODE_ENV=production
+
+RUN npm run build
+
+# Render injects $PORT at runtime (10000 for local `docker run`).
+EXPOSE 10000
+
+# server.ts binds 0.0.0.0:$PORT and serves dist/ + the /api/ai endpoints.
+CMD ["sh", "-c", "node dist/server.cjs"]

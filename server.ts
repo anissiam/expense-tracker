@@ -229,8 +229,19 @@ app.post("/api/ai/transcribe", async (req, res) => {
 
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
+    // Same host allowlist as vite.config.ts: when this dev server is
+    // exposed on a public hostname, list it in ALLOWED_HOSTS
+    // (comma-separated, or "*" to allow all).
+    const rawAllowed = (process.env.ALLOWED_HOSTS || "").trim();
+    const allowedHosts =
+      rawAllowed === "*" || rawAllowed.toLowerCase() === "true"
+        ? true
+        : rawAllowed
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: { middlewareMode: true, allowedHosts },
       appType: "spa",
     });
     app.use(vite.middlewares);
